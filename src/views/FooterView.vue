@@ -2,19 +2,29 @@
   import { storeToRefs } from 'pinia'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
   import { BsFillLightningChargeFill } from 'vue3-icons/bs'
+  import { AiFillControl } from "vue3-icons/ai";
+
   
   const { layoutId } = storeToRefs(useConnectionStore())
 </script>
 <template>
-  <footer>
+  <footer class="relative">
+    <div class="flex max-w-screen-md mx-auto relative bottom-16 p-1 bg-gradient-to-r from-cyan-900 to-slate-900 items-center justify-end">
+      <span class="xy-1">
+        <label v-if="layoutId" class="inline-flex text-xs bg-sky-800 text-white px-2 py-1 rounded-full items-center">
+          {{ layoutId }}
+          <BsFillLightningChargeFill class="w-3 h-3 fill-green-300 stroke-green-300" />
+        </label>
+      </span>
+      <span class="mx-1">
+        <label class="inline-flex text-xs bg-zinc-600 text-white px-2 py-1 rounded-full items-center">
+          DEJA Cloud
+          <BsFillLightningChargeFill class="w-3 h-3 fill-gray-300 stroke-gray-300" />
+        </label>
+      </span>
+    </div>
       
     <div class="btm-nav max-w-screen-md mx-auto">
-      <span>
-        <label v-if="layoutId" class="inline-flex text-xs bg-sky-800 text-white px-2 py-1 rounded-full items-center">
-          [{{ layoutId }}]
-          <BsFillLightningChargeFill class="w-3 h-3 fill-green-300 stroke-green-300" />
-      </label>
-      </span>
       <!-- <router-link
         to="/effects"
         custom
@@ -26,17 +36,15 @@
           </svg>
         </button>
       </router-link> -->
-      <!-- <router-link
-        :to="`locos`"
+      <router-link
+        :to="`/`"
         custom
         v-slot="{ navigate }"
       >
-        <button class="text-primary" :class="{ active: ($route?.name === 'throttle' || $route?.name === 'locos') }" @click="navigate" role="link">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-          </svg>
+        <button class="text-primary active" @click="navigate" role="link">
+          <AiFillControl  class="w-6 h-6" />
         </button>
-      </router-link> -->
+      </router-link>
       <!-- <router-link
         to="/turnouts"
         custom

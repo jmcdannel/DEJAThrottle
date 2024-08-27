@@ -1,8 +1,10 @@
 <script setup lang="ts">
   import { defineEmits, ref, toRef, watch } from 'vue'
   import ThrottleSlider from './ThrottleSlider.component.vue'
-  import forwardIconSvg from '@/assets/icons/forward.svg'
-  import backwardIconSvg from '@/assets/icons/backward.svg'
+  import { 
+    FaChevronLeft,
+    FaChevronRight,
+  } from "vue3-icons/fa";
 
   const direction = ref(null as(null | boolean))
 
@@ -81,15 +83,18 @@
         @click="handleReverse" 
         class="
           btn 
-          btn-xs"
-      >Reverse</button>
+          btn-outline 
+          btn-sm
+          text-xs"
+      ><FaChevronLeft />Rev</button>
       <button 
         @click="handleForward"
         class="
         btn 
         btn-outline 
-        btn-xs"
-      >Forward</button>
+        btn-sm
+          text-xs"
+      >Fwd<FaChevronRight /></button>
     </div>
   </div>
 </template>

@@ -92,29 +92,13 @@
 </script>
 <template>
   <section>
-    <ul class="flex flex-wrap justify-center w-48" v-if="loco">
-      <li v-for="(locoFunc, locoIdx) in locoFunctions" :key="locoFunc.id" class="flex-basis-1/3">
+    <ul class="flex flex-wrap justify-center mx-4 items-center" v-if="loco">
+      <li v-for="(locoFunc, locoIdx) in locoFunctions" :key="locoFunc.id" class="basis-1/3">
         <Function :func="locoFunc" :address="loco.address" :class="getRoundedClasses(locoIdx)" />
       </li>
-      <li v-for="(locoFunc, locoIdx) in availableFunctions" :key="locoFunc.id" class="flex-basis-1/3">
+      <li v-for="(locoFunc, locoIdx) in availableFunctions" :key="locoFunc.id" class="basis-1/3">
         <Function :func="locoFunc" :address="loco.address" :class="getRoundedClasses(locoIdx + locoFunctions.length)" />
       </li>
-      <!-- 
-      <li class="flex-basis-1/3">
-        <button class="btn btn-md rounded-t-none rounded-r-none  bg-gradient-to-br  from-slate-400 to-slate-700">
-          <FaRegStar class="w-6 h-6" />
-        </button>  
-      </li>
-      <li class="flex-basis-1/3">
-        <button class="btn btn-md rounded-none  bg-gradient-to-br  from-slate-400 to-slate-700">
-          <FaRegStar class="w-6 h-6" />
-        </button>  
-      </li>
-      <li class="flex-basis-1/3">
-        <button class="btn btn-md rounded-l-none rounded-t-none  bg-gradient-to-br from-cyan-500 to-indigo-500">
-          <FaPlus class="w-6 h-6" />
-        </button>  
-      </li> -->
     </ul>
     <div class="flex justify-center">
       <button @click="openSettings" class="px-8 rounded-b-lg py-1 bg-gradient-to-br from-indigo-500 to-blue-800"><IoIosCog w-4 h-4 /></button>

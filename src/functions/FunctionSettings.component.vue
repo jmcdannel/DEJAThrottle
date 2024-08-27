@@ -1,5 +1,6 @@
 <script lang="ts" setup>
   import { defineEmits, defineProps, ref } from 'vue'
+  import Function from './Function.component.vue'
   import { 
     PiHeadlightsFill,
     PiBellFill
@@ -84,10 +85,7 @@
             <FaStar v-if="func.isFavorite" class="w-6 h-6" />
             <FaRegStar v-else class="w-6 h-6" />
           </button>
-
-          <h2 class="avatar rounded-xl w-8 h-8 mx-2 flex items-center justify-center bg-gradient-to-br from-cyan-600 to-indigo-600">
-            {{func.id}}
-          </h2>
+          <Function :func="func" :address="loco.address" class="mx-2" />
 
           <input v-model="func.label" class="input input-bordered h-8 w-24 max-w-xs" @blur="handleLabelBlur">
            <details class="dropdown dropdown-end" ref="menuRefs">

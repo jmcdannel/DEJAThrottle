@@ -112,7 +112,7 @@
         h-4 
         w-16
         md:w-36 
-        sm:-left-2 
+        -left-2 
         md:-left-6 
         bg-pink-500 
         relative 
