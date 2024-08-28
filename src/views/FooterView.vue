@@ -2,19 +2,17 @@
   import { storeToRefs } from 'pinia'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
   import { BsFillLightningChargeFill } from 'vue3-icons/bs'
+  import { 
+    IoIosCog,
+  } from "vue3-icons/io";
+  import { AiFillControl } from "vue3-icons/ai";
+
   
   const { layoutId } = storeToRefs(useConnectionStore())
 </script>
 <template>
-  <footer>
-      
+  <footer class="relative">
     <div class="btm-nav max-w-screen-md mx-auto">
-      <span>
-        <label v-if="layoutId" class="inline-flex text-xs bg-sky-800 text-white px-2 py-1 rounded-full items-center">
-          [{{ layoutId }}]
-          <BsFillLightningChargeFill class="w-3 h-3 fill-green-300 stroke-green-300" />
-      </label>
-      </span>
       <!-- <router-link
         to="/effects"
         custom
@@ -26,17 +24,24 @@
           </svg>
         </button>
       </router-link> -->
-      <!-- <router-link
-        :to="`locos`"
+      <router-link
+        :to="`/`"
         custom
         v-slot="{ navigate }"
       >
-        <button class="text-primary" :class="{ active: ($route?.name === 'throttle' || $route?.name === 'locos') }" @click="navigate" role="link">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-          </svg>
+        <button class="text-primary" :class="{ active: ($route?.name === 'home' || $route?.name === 'throttle') }" @click="navigate" role="link">
+          <AiFillControl  class="w-6 h-6" />
         </button>
-      </router-link> -->
+      </router-link>
+      <router-link
+        :to="`/connect`"
+        custom
+        v-slot="{ navigate }"
+      >
+        <button class="text-primary" :class="{ active: ($route?.name === 'connect') }" @click="navigate" role="link">
+          <IoIosCog  class="w-6 h-6" />
+        </button>
+      </router-link>
       <!-- <router-link
         to="/turnouts"
         custom

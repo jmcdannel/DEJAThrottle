@@ -143,7 +143,7 @@
   watch(currentSpeed, sendLocoSpeed)
 </script>
 <template>
-  <main class="throttle-bg card m-5 shadow-xl flex-grow overflow-auto relative" v-if="loco">
+  <main class="throttle-bg card m-2 shadow-xl flex-grow overflow-auto relative" v-if="loco">
     <!-- <button class="btn btn-circle btn-outline text-white btn-xs bg-gray-200 border-gray-200" @click="clearLoco">
       <FaTimesCircle alt="clear layout" class="h-3 w-3" />
     </button> -->
@@ -151,10 +151,10 @@
       <Consist :loco="loco" :locos="locos" />
     </ThrottleHeader>
     <section class="throttle flex flex-row flex-grow overflow-auto">
-      <section class="py-8 px-3 text-center  flex-1">
+      <section class="pt-4 pb-8 px-1 text-center  flex-1">
         <ThrottleSliderControls :speed="currentSpeed" @update:currentSpeed="setSliderSpeed" @stop="handleStop" />  
       </section>
-      <section class="py-8 px-3 flex flex-col items-center justify-between flex-1">
+      <section class="pt-4 flex flex-col items-center justify-between flex-1">
         <Functions :loco="loco" @save-loco="handleSaveLoco" />
         <CurrentSpeed :speed="currentSpeed" />
         <ThrottleButtonControls :speed="currentSpeed" @update:currentSpeed="adjustSpeed" @stop="handleStop" />

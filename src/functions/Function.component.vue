@@ -1,20 +1,5 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { 
-    PiHeadlightsFill,
-    PiBellFill
-  } from 'vue3-icons/pi'
-  import { 
-    FaBullhorn,
-    FaChevronCircleLeft,
-    FaChevronCircleRight,
-    FaMinus,
-    FaPlus,
-    FaRegStar,
-    FaTimesCircle,
-  } from 'vue3-icons/fa'
-  import { RiTrainWifiFill } from 'vue3-icons/ri'
-
   import FunctionIcon from './FunctionIcon.component.vue'
   import useDcc from '../api/dccApi.js'
 
@@ -27,8 +12,7 @@
     }
   })
   
-  const dccApi = useDcc()
-  
+  const dccApi = useDcc()  
   const func1State = ref(false);
 
   async function cabFuction() {
@@ -43,7 +27,7 @@
 </script>
 <template>
   <button @click="cabFuction()"
-    class="relative btn btn-md bg-gradient-to-br from-cyan-600 to-indigo-600">
+    class="relative btn btn-md w-full bg-gradient-to-br from-cyan-600 to-indigo-600">
     <FunctionIcon v-if="func?.icon" :icon="func?.icon" class="w-6 h-6" />
     <template v-else>
       <div class="w-6 h-6 flex items-center justify-center">{{ func?.label }}</div>

@@ -4,10 +4,12 @@
 
 Vue.js 3 Web App to control DCC locomotives with [🛰️ DEJA.js](https://github.com/jmcdannel/DEJA.js) and [DCC-EX EX-CommandStation](https://dcc-ex.com/ex-commandstation/index.html).
 
+<p align="center">
   <img src="./resources/screen-throttle.png" alt="Size Limit CLI" width="360">
   <img src="./resources/screen-connect.png" alt="Size Limit CLI" width="360">
   <img src="./resources/screen-select-loco.png" alt="Size Limit CLI" width="360">
   <img src="./resources/screen-dejajs.png" alt="Size Limit CLI" width="360">
+</p>
 
 🚀 [Open DEJA Throttle](https://deja-throttle.vercel.app/) Take 'er for a spin 🚗. Open in Chrome on a computer 💻 with a USB DCC-EX CommandStation, run trains 🚂! Or, try emulator mode to see how easy it is. Better yet, go big-brain 🧠, dive in and install [🛰️ DEJA.js](https://github.com/jmcdannel/DEJA.js) SERVER on a PC/MAC/Linux/Pi 💻 connected to a DCC-EX CommandStation and unleash all the potential of the [DEJA Cloud](https://github.com/jmcdannel/DEJA.js) and instant wireless throttle control📲 on any modern device with a browser.
 

@@ -2,7 +2,6 @@
   import { ref } from 'vue';
   import powerIconSvg from '@/assets/icons/power.svg'
 
-  
   const props = defineProps({
     connected: {
         type: Boolean,
