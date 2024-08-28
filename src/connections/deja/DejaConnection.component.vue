@@ -92,7 +92,7 @@
       <div class="p-2">
           <ConnectionStatus connectedLabel="DEJA.js" disconnectedLabel="DEJA.js" :connected="conn.dejaConnected" />
           <ConnectionStatus connectedLabel="MQTT" disconnectedLabel="MQTT" :connected="conn.mqttConnected" />
-          <ConnectionStatus :connectedLabel="conn.layoutId" disconnectedLabel="Layout" :connected="conn.layoutId" />
+          <ConnectionStatus :connectedLabel="conn.layoutId?.toString()" disconnectedLabel="Layout" :connected="!!conn.layoutId" />
           <tttButton variant="information" size="sm" @click="handleRefreshClick">Refresh</tttButton>
       </div>   
       <p class="p-2">Connect to your layout via DEJA.js - the DCC-EX JavaScript API by Track & Trestle Technology</p>
