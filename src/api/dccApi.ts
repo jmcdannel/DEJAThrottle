@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, toRefs } from "vue"
 import { useConnectionStore } from "../connections/connectionStore.jsx"
 import { storeToRefs } from "pinia"
 import { useMQTT } from "mqtt-vue-hook"
@@ -9,8 +9,6 @@ export function useDcc() {
   const serialApi = useSerial()
   const connStore = useConnectionStore()
   const { layoutId } = storeToRefs(connStore)
-  const topic = ref(`@ttt/dcc/${layoutId.value}`)
-  const dejaTopic = ref(`@ttt/DEJA.js/${layoutId.value}`)
 
   let ports: never[] = []
 
@@ -92,11 +90,27 @@ export function useDcc() {
         serialApi.send(action, payload)
         return
       } else if (connStore.dejaConnected) {
-        console.log("[dccApi] send", topic.value, action, payload)
-        mqttHook.publish(topic.value, JSON.stringify({ action, payload }))
+        console.log(
+          "[dccApi] send",
+          `@ttt/dcc/${layoutId.value}`,
+          action,
+          payload
+        )
+        mqttHook.publish(
+          `@ttt/dcc/${layoutId.value}`,
+          JSON.stringify({ action, payload })
+        )
       } else if (connStore.mqttConnected) {
-        console.log("[mqtt] send", topic.value, action, payload)
-        mqttHook.publish(topic.value, JSON.stringify({ action, payload }))
+        console.log(
+          "[mqtt] send",
+          `@ttt/dcc/${layoutId.value}`,
+          action,
+          payload
+        )
+        mqttHook.publish(
+          `@ttt/dcc/${layoutId.value}`,
+          JSON.stringify({ action, payload })
+        )
       } else {
         console.error("[DISCONNECTED] !send", action, payload, connStore)
       }

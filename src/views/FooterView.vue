@@ -2,6 +2,9 @@
   import { storeToRefs } from 'pinia'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
   import { BsFillLightningChargeFill } from 'vue3-icons/bs'
+  import { 
+    IoIosCog,
+  } from "vue3-icons/io";
   import { AiFillControl } from "vue3-icons/ai";
 
   
@@ -9,21 +12,6 @@
 </script>
 <template>
   <footer class="relative">
-    <div class="flex max-w-screen-md mx-auto relative bottom-16 p-1 bg-gradient-to-r from-cyan-900 to-slate-900 items-center justify-end">
-      <span class="xy-1">
-        <label v-if="layoutId" class="inline-flex text-xs bg-sky-800 text-white px-2 py-1 rounded-full items-center">
-          {{ layoutId }}
-          <BsFillLightningChargeFill class="w-3 h-3 fill-green-300 stroke-green-300" />
-        </label>
-      </span>
-      <span class="mx-1">
-        <label class="inline-flex text-xs bg-zinc-600 text-white px-2 py-1 rounded-full items-center">
-          DEJA Cloud
-          <BsFillLightningChargeFill class="w-3 h-3 fill-gray-300 stroke-gray-300" />
-        </label>
-      </span>
-    </div>
-      
     <div class="btm-nav max-w-screen-md mx-auto">
       <!-- <router-link
         to="/effects"
@@ -41,8 +29,17 @@
         custom
         v-slot="{ navigate }"
       >
-        <button class="text-primary active" @click="navigate" role="link">
+        <button class="text-primary" :class="{ active: ($route?.name === 'home' || $route?.name === 'throttle') }" @click="navigate" role="link">
           <AiFillControl  class="w-6 h-6" />
+        </button>
+      </router-link>
+      <router-link
+        :to="`/connect`"
+        custom
+        v-slot="{ navigate }"
+      >
+        <button class="text-primary" :class="{ active: ($route?.name === 'connect') }" @click="navigate" role="link">
+          <IoIosCog  class="w-6 h-6" />
         </button>
       </router-link>
       <!-- <router-link
