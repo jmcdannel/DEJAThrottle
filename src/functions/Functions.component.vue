@@ -92,7 +92,7 @@
 </script>
 <template>
   <section>
-    <ul class="flex flex-wrap justify-center mx-4 items-center" v-if="loco">
+    <ul class="flex flex-wrap justify-center items-center" v-if="loco">
       <li v-for="(locoFunc, locoIdx) in locoFunctions" :key="locoFunc.id" class="basis-1/3">
         <Function :func="locoFunc" :address="loco.address" :class="getRoundedClasses(locoIdx)" />
       </li>
