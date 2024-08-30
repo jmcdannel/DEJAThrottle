@@ -73,7 +73,7 @@
           {{ dejaConnected ? 'Connected' : '' }}
           <template v-slot:desc>
             <p class="py-1">
-              Connect DEJA Throttle to a DEJA.js server. The Definitive, Tranformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
+              Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
             </p>
           </template>
         </StatusMenuItem>
