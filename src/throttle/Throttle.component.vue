@@ -63,19 +63,19 @@
   }
 
   function calculateConsistSpeed(newSpeed: number, consistLoco: ConsistLoco): number | undefined {
-    if (!consistLoco.trim) {
-      return newSpeed
-    }
+    
     let consistSpeed = newSpeed
-    if (consistLoco.direction) {
-        consistSpeed = (newSpeed > 0)
-          ? consistSpeed + consistLoco.trim
-          : consistSpeed - consistLoco.trim
+    if (consistLoco.trim) {
+      if (consistLoco.direction) {
+          consistSpeed = (newSpeed > 0)
+            ? consistSpeed + consistLoco.trim
+            : consistSpeed - consistLoco.trim
 
-    } else {
-      consistSpeed = (newSpeed > 0)
-          ? consistSpeed - consistLoco.trim
-          : consistSpeed + consistLoco.trim
+      } else {
+        consistSpeed = (newSpeed > 0)
+            ? consistSpeed - consistLoco.trim
+            : consistSpeed + consistLoco.trim
+      }
     }
 
     if (newSpeed > 0 && consistSpeed <= 0) {
@@ -84,7 +84,7 @@
       consistSpeed = -1
     }
 
-    return consistSpeed
+    return consistLoco.direction ? consistSpeed : -consistSpeed
   }
 
   async function sendLocoSpeed(newSpeed:number, oldSpeed:number) {
