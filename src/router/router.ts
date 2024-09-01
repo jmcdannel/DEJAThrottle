@@ -21,28 +21,14 @@ const router = createRouter({
       component: SelectConnections,
     },
     {
-      path: "/connect/deja",
-      name: "deja",
-      component: () =>
-        import("../connections/deja/DejaConnection.component.vue"),
+      path: "/connect/dejajs",
+      name: "dejajs",
+      component: () => import("../connections/deja/DejaJs.vue"),
     },
     {
-      path: "/connect/emulator",
-      name: "emulator",
-      component: () =>
-        import("../connections/emulator/EmulatorConnect.component.vue"),
-    },
-    {
-      path: "/connect/layout-id",
-      name: "layout-id",
-      component: () =>
-        import("../connections/layout-id/LayoutConnect.component.vue"),
-    },
-    {
-      path: "/connect/serial",
-      name: "serial",
-      component: () =>
-        import("../connections/serial/SerialConnect.component.vue"),
+      path: "/connect/deja-cloud",
+      name: "deja-cloud",
+      component: () => import("../connections/deja/DejaCloud.vue"),
     },
   ],
 })

@@ -7,7 +7,7 @@
   import tttButton from '@/shared/ui/tttButton.component.vue'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
   import closeIconSvg from '@/assets/icons/close.svg'
-
+  
   const dccApi = useDcc()
   const conn = useConnectionStore()
   const { layoutId, ports, dejaConnected } = storeToRefs(conn)
@@ -134,7 +134,7 @@
         </div>
         <ul class="p-2 flex flex-col items-center" v-if="Array.isArray(layouts) && layouts.length > 0">
           <li class="mb-2" v-for="savedLayout in layouts" :key="savedLayout">
-            <tttButton size="lg" :value="savedLayout" @click="handleLayoutSelect">{{savedLayout}}</tttButton>              
+            <tttButton size="lg" :value="savedLayout" @click="handleLayoutSelect">{{savedLayout}}</tttButton>
           </li>
         </ul>
       </div>

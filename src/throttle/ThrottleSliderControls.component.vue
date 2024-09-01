@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { defineEmits, ref, toRef, watch } from 'vue'
-  import ThrottleSlider from './ThrottleSlider.component.vue'
+  import ThrottleSlider from './ThrottleSlide.component.vue'
   import { 
     FaChevronLeft,
     FaChevronRight,
@@ -36,6 +36,7 @@
   }
 
   function handleSliderUpdate(val: number) {
+    console.log('handleSliderUpdate', val)
     if (direction.value === null) {
       return
     } else if (direction.value === true) {
@@ -76,7 +77,13 @@
 <template>
   <div class="flex flex-col h-full">
     <div class="flex-grow">
-      <ThrottleSlider :speed="speed" @update:currentSpeed="handleSliderUpdate" @stop="$emit('stop')" :disabled="isDisabled()" />
+      <ThrottleSlider 
+        :speed="speed" 
+        :throttleVal.sync="Math.abs(speed)" 
+        :direction.sync="direction" 
+        :disabled="isDisabled()"
+        @update="handleSliderUpdate" 
+        @stop="$emit('stop')"  />
     </div>
     <div class="flex mt-4 align-middle justify-center">
       <button 

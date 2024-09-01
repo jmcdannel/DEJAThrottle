@@ -1,19 +1,28 @@
 <script setup lang="ts">
   import { storeToRefs } from 'pinia'
+  import { useCurrentUser } from 'vuefire'
   import { 
+    BsFillLightningCharge,
     BsFillLightningChargeFill,
     BsUsbSymbol,
+    BsCloud,
+    BsCloudFill,
     BsCpu,
+    BsUsbPlug,
+    BsUsbPlugFill,
     BsCupHotFill,
+    Bs
   } from 'vue3-icons/bs'
-  import Status from './Status.component.vue';
+  import { BiServer, BiSolidServer } from "vue3-icons/bi"
   import { useConnectionStore } from '@/connections/connectionStore'
-  import StatusMenuItem from '@/core/StatusMenuItem.component.vue'
+  import StatusMenuItem from '@/core/StatusMenu/StatusMenuItem.component.vue'
+  import DejaSignout from '@/deja-cloud/DejaSignout.vue'
   import useSerial from '@/api/serialApi'
  
   const serialApi = useSerial()
+  const user = useCurrentUser()
   const connStore = useConnectionStore()
-  const { isEmulated, dejaConnected, serialConnected } = storeToRefs(connStore)  
+  const { layoutId, isEmulated, dejaConnected, serialConnected, cloudConnected } = storeToRefs(connStore)  
 
   const handleDisconnect = () => {
     connStore.disconnect()
@@ -21,23 +30,12 @@
 
   const handleSerial = () => {
     console.log('handleSerial', serialConnected.value)
-    if (serialConnected.value) {
-      handleSerialDisconnect()
-    } else {
-      handleSerialConnect()
-    }
-  }
-
-  const handleSerialConnect = async () => {
     try {
-      serialApi.connect()
-    } catch (err) {
-      console.error(err);
-    }
-  }
-  const handleSerialDisconnect = async () => {
-    try {
-      serialApi.disconnect()
+      if (serialConnected.value) {
+        serialApi.disconnect()
+      } else {
+        serialApi.connect()
+      }
     } catch (err) {
       console.error(err);
     }
@@ -64,43 +62,64 @@
       <Transition name="slide-out" mode="out-in">
       <div class="stats stats-vertical w-full">
         <StatusMenuItem 
-          :icon="BsFillLightningChargeFill" 
+          :icon="BsCloud" 
+          :is-connected="(!!user && cloudConnected)"
+          item-label="DEJA Cloud" 
+          page="deja-cloud"
+          @disconnect="handleDisconnect()"
+          class="text-pink-400">    
+          <VaChip @click="$router.push({ name: 'deja-cloud' })" outline :color="cloudConnected ? 'success' : 'gray-500'">{{ layoutId }}</VaChip>
+          <template v-slot:desc>
+            <h3 class="pt-2 text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">
+              <VaAvatar :size="24" :src="user?.photoURL" />
+              {{ user?.displayName }}
+            </h3>
+            <!-- <p class="py-1">
+              Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
+            </p> -->
+          </template>
+          <template v-slot:actions>
+            <DejaSignout />
+          </template>
+        </StatusMenuItem>
+        <StatusMenuItem 
+          :icon="BiServer" 
           :is-connected="dejaConnected"
           item-label="DEJA.js" 
-          page="deja"
+          page="dejajs"
           @disconnect="handleDisconnect()"
           class="text-pink-400">    
           {{ dejaConnected ? 'Connected' : '' }}
           <template v-slot:desc>
-            <p class="py-1">
+            <!-- <p class="py-1">
               Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
-            </p>
+            </p> -->
           </template>
         </StatusMenuItem>
         <StatusMenuItem 
           :icon="BsUsbSymbol" 
           :is-connected="serialConnected"
-          item-label="USB Serial"  
+          item-label="DEJA Direct"  
             @disconnect="handleDisconnect()"
           @connect="handleSerial">    
           {{ serialConnected ? 'Connected' : '' }}
           <template v-slot:desc>
-            <p class="py-1">
+            <!-- <p class="py-1">
               Connect DEJA Throttle to a DCCEX Command Station Arduino connected directly to this computer. Requires modern Chromium browser.
-            </p>
+            </p> -->
           </template>
         </StatusMenuItem>
         <StatusMenuItem 
           :icon="BsCupHotFill" 
           :is-connected="isEmulated"
-          item-label="Emulator"
+          item-label="DEJA Demo"
           class="text-pink-400"
           @connect="handleEmulator">    
           {{ isEmulated ? 'Connected' : '' }}
           <template v-slot:desc>
-            <p class="py-1">
+            <!-- <p class="py-1">
               Emulate a connection to a DCC-EC EX-CommandStation. This connection mode allows you to test the DEJA Throttle without a physical connection to a DCC-EC EX-CommandStation.
-            </p>
+            </p> -->
           </template>
         </StatusMenuItem>
       </div>

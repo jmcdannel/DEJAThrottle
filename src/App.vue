@@ -2,19 +2,25 @@
   import { onMounted, ref } from 'vue'
   import { storeToRefs } from 'pinia'
   import { RouterView } from 'vue-router'
+  import { useConnectionStore } from '@/connections/connectionStore'
+  import {  useCurrentUser } from 'vuefire'
   import HeaderView from '@/views/HeaderView.vue'
   import FooterView from '@/views/FooterView.vue'
   import DEJAConnect from '@/core/DEJAConnect.component.vue'
-  import { useConnectionStore } from '@/connections/connectionStore'
+  import DejaCloudConnect from '@/deja-cloud/DejaCloudConnect.vue'
   
+  const user = useCurrentUser()
   const conn = useConnectionStore()
-  const { layoutId } = storeToRefs(conn)
+  const { layoutId, dejaConnected, cloudConnected } = storeToRefs(conn)
   
 </script>
 
 <template>
-  <template v-if="layoutId">
+  <template v-if="dejaConnected && layoutId">
     <DEJAConnect />
+  </template>
+  <template v-if="user && layoutId">
+    <DejaCloudConnect />
   </template>
   <main class="flex flex-col h-screen max-w-screen-md mx-auto">
     <HeaderView />

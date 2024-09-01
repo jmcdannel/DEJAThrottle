@@ -4,11 +4,11 @@ import { storeToRefs } from 'pinia'
   import ThrottleView from '../views/ThrottleView.vue'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
 
-  const { dejaConnected, isEmulated, serialConnected } = storeToRefs(useConnectionStore())
+  const { dejaConnected, isEmulated, serialConnected, cloudConnected } = storeToRefs(useConnectionStore())
 
 </script>
 <template>
-  <main class="flex" v-if="dejaConnected || isEmulated || serialConnected">
+  <main class="flex" v-if="dejaConnected || isEmulated || serialConnected || cloudConnected">
     <ThrottleView />
   </main>
   <main class="flex" v-else>

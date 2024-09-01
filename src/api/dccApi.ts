@@ -1,13 +1,17 @@
 import { ref, toRefs } from "vue"
-import { useConnectionStore } from "../connections/connectionStore.jsx"
 import { storeToRefs } from "pinia"
 import { useMQTT } from "mqtt-vue-hook"
 import { useSerial } from "@/api/serialApi.js"
+import { useConnectionStore } from "@/connections/connectionStore.jsx"
+import { useCollection, useCurrentUser } from "vuefire"
+import { useDejaCloud } from "@/deja-cloud/useDejaCloud.js"
 
 export function useDcc() {
+  const user = useCurrentUser()
   const mqttHook = useMQTT()
   const serialApi = useSerial()
   const connStore = useConnectionStore()
+  const dejaCloud = useDejaCloud()
   const { layoutId } = storeToRefs(connStore)
 
   let ports: never[] = []
@@ -94,23 +98,21 @@ export function useDcc() {
           "[dccApi] send",
           `@ttt/dcc/${layoutId.value}`,
           action,
-          payload
+          payload,
+          user?.value?.displayName
         )
         mqttHook.publish(
           `@ttt/dcc/${layoutId.value}`,
           JSON.stringify({ action, payload })
         )
-      } else if (connStore.mqttConnected) {
+      } else if (connStore.cloudConnected) {
         console.log(
-          "[mqtt] send",
+          "[cloud] send",
           `@ttt/dcc/${layoutId.value}`,
           action,
           payload
         )
-        mqttHook.publish(
-          `@ttt/dcc/${layoutId.value}`,
-          JSON.stringify({ action, payload })
-        )
+        dejaCloud.send({ action, payload })
       } else {
         console.error("[DISCONNECTED] !send", action, payload, connStore)
       }

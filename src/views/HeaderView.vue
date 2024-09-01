@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import Title from '@/core/Title.component.vue';
   import Power from '@/core/Power.component.vue';
-  import StatusMenu from '@/core/StatusMenu.component.vue';
+  import StatusMenu from '@/core/StatusMenu/StatusMenu.component.vue';
 
 </script>
 
