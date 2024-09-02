@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { defineEmits, defineProps, ref } from 'vue'
+  import { ref } from 'vue'
   import Function from './Function.component.vue'
   import { 
     PiHeadlightsFill,

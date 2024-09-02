@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { defineEmits, defineProps, onMounted, ref, watch, toRef } from 'vue'
+  import { onMounted, ref, watch, toRef } from 'vue'
 
   const emit = defineEmits(['update:currentSpeed', 'stop'])
 

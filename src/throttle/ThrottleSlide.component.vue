@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, onMounted, ref, watch, toRef, computed, reactive } from 'vue'
+import { ref, watch, toRef, computed, reactive } from 'vue'
 import { refDebounced, watchDebounced } from '@vueuse/core'
 
   const emit = defineEmits(['update', 'stop'])

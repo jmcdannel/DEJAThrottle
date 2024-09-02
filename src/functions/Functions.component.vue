@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { defineEmits, defineProps, ref } from 'vue'
+  import { ref } from 'vue'
   import { 
     IoIosCog,
   } from 'vue3-icons/io'
