@@ -13,7 +13,7 @@
   const props = defineProps({
     loco: {
       type: Object,
-      required: true
+      required: false
     }
   })
   

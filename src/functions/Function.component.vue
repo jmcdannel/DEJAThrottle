@@ -9,7 +9,8 @@
     },
     address: {
         type: Number
-    }
+    },
+    
   })
   
   const dccApi = useDcc()  
@@ -27,10 +28,10 @@
 </script>
 <template>
   <button @click="cabFuction()"
-    class="relative btn btn-md w-full bg-gradient-to-br from-cyan-600 to-indigo-600">
-    <FunctionIcon v-if="func?.icon" :icon="func?.icon" class="w-6 h-6" />
+    class="relative btn btn-md bg-gradient-to-br from-cyan-600 to-indigo-600">
+    <FunctionIcon v-if="func?.icon" :icon="func?.icon" class="w-4 h-4 md:w-6 md:h-6" />
     <template v-else>
-      <div class="w-6 h-6 flex items-center justify-center">{{ func?.label }}</div>
+      <div class="w-4 h-4 md:w-6 md:h-6 flex items-center justify-center">{{ func?.label }}</div>
     </template>
   </button>  
 </template>

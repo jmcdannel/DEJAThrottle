@@ -44,9 +44,9 @@
 
 </script>
 <template>
-  <div class="px-2 py-4 flex flex-col justify-center align-middle">
+  <div class="px-2 py-4 flex flex-col justify-stretch align-middle flex-grow">
     <button 
-      class="rounded-b-none rounded-t-3xl" 
+      class="rounded-b-none rounded-t-3xl flex-grow" 
       :class="btnClasses"
       @click="handleUp5">
       <img 
@@ -56,7 +56,7 @@
     </button>
     <hr class="border-black" />
     <button 
-      class="rounded-none" 
+      class="rounded-none  flex-grow" 
       :class="btnClasses"
       @click="handleUp">
       <img 
@@ -65,11 +65,11 @@
       />
     </button>
     <button 
-      class="btn btn-primary rounded-3xl h-auto mx-auto w-28 md:w-36 relative z-10" @click="handleStop">
+      class="btn bg-red-500 rounded-3xl py-6 min-h-16 h-auto mx-auto w-28 md:w-36 relative z-10" @click="handleStop">
       <img :src="stopIconSvg" :class="iconClasses" />
     </button>
     <button 
-      class="rounded-none"
+      class="rounded-none  flex-grow"
       :class="btnClasses" 
       @click="handleDown">
       <img 
@@ -79,7 +79,7 @@
     </button>
     <hr class="border-black" />
     <button 
-      class="rounded-t-none rounded-b-3xl" 
+      class="rounded-t-none rounded-b-3xl flex-grow" 
       :class="btnClasses"
       @click="handleDown5">
       <img 

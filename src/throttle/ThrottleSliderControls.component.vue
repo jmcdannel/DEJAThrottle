@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { defineEmits, ref, toRef, watch } from 'vue'
-  import ThrottleSlider from './ThrottleSlide.component.vue'
+  import ThrottleSlider from './ThrottleSlider.component.vue'
   import { 
     FaChevronLeft,
     FaChevronRight,

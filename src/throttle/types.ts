@@ -6,9 +6,17 @@ export interface ConsistLoco {
   trim: number
 }
 export interface Loco {
-  address: number
+  locoId: number
+  name: string
   consist: ConsistLoco[]
   functions: LocoFunction[]
+}
+export interface Throttle {
+  id?: number
+  address: number
+  direction: boolean
+  speed: number
+  timesstamp: number
 }
 export interface LocoFunction {
   id: number

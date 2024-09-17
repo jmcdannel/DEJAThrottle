@@ -1,13 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
 import { signOut } from 'firebase/auth'
 import { useCurrentUser, useFirebaseAuth } from 'vuefire'
-import { VaAvatar, VaButton, VaCardActions, VaChip } from 'vuestic-ui'
+import { VaButton } from 'vuestic-ui'
+import { useConnectionStore } from '@/connections/connectionStore'
 
 const auth = useFirebaseAuth()
 const user = useCurrentUser()
+const connStore = useConnectionStore()
 
 function handleSignOut() {
+  connStore.disconnect()
   signOut(auth).catch((reason) => {
     console.error('Failed signOut', reason)
     error.value = reason

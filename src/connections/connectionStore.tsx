@@ -5,13 +5,14 @@ export const useConnectionStore = defineStore('connections', {
     mqttConnected: false,
     ports: [],
     dejaConnected: false,
+    dccExConnected: false,
     serialConnected: false,
     cloudConnected: false,
     isEmulated: false,
     layoutId: localStorage.getItem('@DEJA/layoutId') || null
   }),
   actions: {
-    connect(connType: String, layoutId?: String) {
+    connect(connType: string, layoutId?: string) {
       this.disconnect()
       switch (connType) {
         case 'cloud':
@@ -35,12 +36,16 @@ export const useConnectionStore = defineStore('connections', {
         localStorage.setItem('@DEJA/layoutId', layoutId)
       }
     },
+    connectDccEx() {
+      this.dccExConnected = true
+    },
     disconnect() {
       this.ports = []
       this.mqttConnected = false
       this.layoutId = null
       this.dejaConnected = false
       this.cloudConnected = false
+      this.dccExConnected = false
       this.serialConnected = false
       this.isEmulated = false
       localStorage.removeItem('@DEJA/layoutId')

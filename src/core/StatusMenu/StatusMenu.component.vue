@@ -5,6 +5,7 @@
   import { useCurrentUser } from 'vuefire'
   import StatusMenuItem from '@/core/StatusMenu/StatusMenuItem.component.vue'
   import useSerial from '@/api/serialApi'
+  import { useDcc } from '@/api/dccApi'
   import { 
     BsFillLightningCharge,
     BsFillLightningChargeFill,
@@ -21,12 +22,17 @@ import { serverTimestamp } from 'firebase/database'
 import DejaSignout from '@/deja-cloud/DejaSignout.vue'
 
   const user = useCurrentUser()
+  const dccApi = useDcc()
   const serialApi = useSerial()
   const connStore = useConnectionStore()
-  const { cloudConnected, dejaConnected, isEmulated, serialConnected, layoutId } = storeToRefs(connStore)
+  const { cloudConnected, dejaConnected, isEmulated, serialConnected, dccExConnected, layoutId } = storeToRefs(connStore)
 
   const handleDisconnect = () => {
     connStore.disconnect()
+  }
+
+  const handleStatus = () => {
+    dccApi.send('getStatus', { })
   }
 
   const handleSerial = () => {
@@ -76,10 +82,12 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
     }
   ])
 
+  const disabledColor = '#999999'
+
 </script>
 
 <template>
-  <main class="flex">
+  <main class="flex ">
     <div class="dropdown dropdown-oepn dropdown-end">
       <div tabindex="0" role="button" class="btn m-1">
         <ul class="flex items-center justify-center">
@@ -91,7 +99,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
             <BsCloud v-else class="w-4 h-4 text-error" />
           </li>
           <li class="mx-1">
-            <BsCpu v-if="!!layoutId && (cloudConnected || dejaConnected || isEmulated || serialConnected)" class="w-4 h-4 text-success  stroke-none" />
+            <BsCpu v-if="!!layoutId && (dccExConnected || dejaConnected || isEmulated || serialConnected)" class="w-4 h-4 text-success  stroke-none" />
             <BsCpu v-else class="w-4 h-4 text-error" />
           </li>
           <li class="mx-1">
@@ -102,7 +110,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
       </div>
       <div
         tabindex="0"
-        class="dropdown-content z-[1] w-auto">
+        class="dropdown-content z-20 w-auto">
         <div class="stats stats-vertical shadow bg-slate-900">
 
           <template v-if="!(dejaConnected || isEmulated || serialConnected || cloudConnected)">
@@ -175,25 +183,30 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
           <StatusMenuItem
           
             :icon="BsCpu" 
-            :is-connected="!!layoutId && (cloudConnected || dejaConnected || isEmulated || serialConnected)"
+            :is-connected="!!layoutId && (dccExConnected || dejaConnected || isEmulated || serialConnected)"
             item-label="DCC-EX CommandStation" 
             page="deja"
+            @connect="$router.push({ name: 'connect' })"
             class="text-purple-600">
-            <VaChip v-if="layoutId" outline closable>{{  layoutId }}</VaChip>
+            <VaChip v-if="dccExConnected" outline closable>{{  layoutId }}</VaChip>
+            <VaChip v-else-if="dejaConnected" outline closable>{{  layoutId }}</VaChip>
             <VaChip v-else-if="serialConnected" outline>USB Direct</VaChip>
             <VaChip v-else-if="isEmulated" outline>Emulator</VaChip>
-            <VaChip v-else outline>-</VaChip>
-            <template v-slot:actions>
-              <button v-if="layoutId" @click="handleDisconnect" class="btn btn-sm btn-outline btn-primary">
+            <VaChip :color="disabledColor" v-else outline>Disconnected</VaChip>
+            <template v-if="layoutId" v-slot:actions>
+              <button @click="handleDisconnect" class="btn btn-sm btn-outline btn-primary">
                 <BsCpu class="h-3 w-3 stroke-none" />
                 Disconnect
               </button>              
-              <button class="btn btn-sm btn-outline mx-2" disabled>
+              <button class="btn btn-sm btn-outline mx-2" @click="handleStatus">
                 Get Status
               </button>
               <!-- <button class="btn btn-sm btn-outline" disabled>
                 View Log
               </button> -->
+            </template>
+            <template v-else v-slot:actions>
+              
             </template>
           </StatusMenuItem>
 

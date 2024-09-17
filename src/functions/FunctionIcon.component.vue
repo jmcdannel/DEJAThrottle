@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { defineProps } from 'vue'
   import { 
     PiHeadlightsFill,
     PiBellFill
@@ -23,10 +22,10 @@
 
 </script>
 <template>
-  <PiHeadlightsFill v-if="icon === 'light'" />
-  <PiBellFill v-else-if="icon === 'bell'" class="w-6 h-6" />
-  <FaBullhorn v-else-if="icon === 'horn'" class="w-6 h-6" />
+  <PiHeadlightsFill v-if="icon === 'light'"/>
+  <PiBellFill v-else-if="icon === 'bell'" />
+  <FaBullhorn v-else-if="icon === 'horn'"/>
   <template v-else>
-    <RiTrainWifiFill class="w-6 h-6" />
+    <RiTrainWifiFill  />
   </template>
 </template>

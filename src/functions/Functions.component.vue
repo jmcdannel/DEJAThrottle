@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { defineEmits, defineProps, ref } from 'vue'
+  import { ref } from 'vue'
   import { 
     IoIosCog,
   } from 'vue3-icons/io'
+  import { RiTrainWifiFill } from 'vue3-icons/ri'
   import Function from './Function.component.vue'
   import FunctionSettings from './FunctionSettings.component.vue'
   import type { Loco, LocoFunction } from '@/throttle/types'
@@ -14,7 +15,9 @@
   const emit = defineEmits(['saveLoco'])
 
   const settingsRef = ref<HTMLDialogElement | null>(null)
-  const loco = ref<Loco | null>(props.loco as Loco)
+  // const loco = ref<Loco | null>(props.loco as Loco)
+
+  console.log('Functions', props.loco)
 
   const functions = [
     { id: 0, label: 'F0' },
@@ -51,7 +54,7 @@
     { id: 31, label: 'F31' }
   ] as LocoFunction[]
 
-  const locoFunctions = ref<LocoFunction[]>(loco.value?.functions.filter(f => f.isFavorite) || [])
+  const locoFunctions = ref<LocoFunction[]>(props?.loco?.functions?.filter(f => f.isFavorite) || [])
 
   const availableFunctions = functions
     .filter((f) => !locoFunctions.value.map(lf => lf.id).includes(f.id))
@@ -63,9 +66,9 @@
 
   function handleUpdateFunctions(functions: LocoFunction[]) {
     console.log('handleUpdateFunctions', functions.filter(filterFunctions))
-    if (loco.value) {
-      loco.value.functions = functions.filter(filterFunctions)
-      emit('saveLoco', loco.value)
+    if (props?.loco) {
+      props.loco.functions = functions.filter(filterFunctions)
+      emit('saveLoco', props.loco)
     }
   }
 
@@ -91,18 +94,19 @@
 
 </script>
 <template>
-  <section>
+  <section class="hidden sm:block">
     <ul class="flex flex-wrap justify-center mx-4 items-center" v-if="loco">
-      <li v-for="(locoFunc, locoIdx) in locoFunctions" :key="locoFunc.id" class="basis-1/3">
-        <Function :func="locoFunc" :address="loco.address" :class="getRoundedClasses(locoIdx)" />
+      <li v-for="(locoFunc, locoIdx) in loco.functions" :key="locoFunc.id" class="basis-1/3">
+        <Function :func="locoFunc" :address="loco.locoId" class="w-full" :class="getRoundedClasses(locoIdx)" />
       </li>
       <li v-for="(locoFunc, locoIdx) in availableFunctions" :key="locoFunc.id" class="basis-1/3">
-        <Function :func="locoFunc" :address="loco.address" :class="getRoundedClasses(locoIdx + locoFunctions.length)" />
+        <Function :func="locoFunc" :address="loco.locoId" class="w-full" :class="getRoundedClasses(locoIdx + locoFunctions.length)" />
       </li>
     </ul>
     <div class="flex justify-center">
       <button @click="openSettings" class="px-8 rounded-b-lg py-1 bg-gradient-to-br from-indigo-500 to-blue-800"><IoIosCog w-4 h-4 /></button>
     </div>
   </section>
+  <button @click="openSettings" class="sm:hidden rounded-lg p-4 bg-gradient-to-br from-indigo-500 to-blue-800"><RiTrainWifiFill class="w-8 h-8" /></button>
   <FunctionSettings ref="settingsRef" :loco="loco" :default-functions="functions" @save-functions="handleUpdateFunctions" />
 </template>

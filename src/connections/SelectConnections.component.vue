@@ -68,8 +68,8 @@
           page="deja-cloud"
           @disconnect="handleDisconnect()"
           class="text-pink-400">    
-          <VaChip @click="$router.push({ name: 'deja-cloud' })" outline :color="cloudConnected ? 'success' : 'gray-500'">{{ layoutId }}</VaChip>
-          <template v-slot:desc>
+          <VaChip v-if="(!!user && cloudConnected)" @click="$router.push({ name: 'deja-cloud' })" outline :color="cloudConnected ? 'success' : 'gray-500'">{{ layoutId }}</VaChip>
+          <template v-if="(!!user && cloudConnected)" v-slot:desc>
             <h3 class="pt-2 text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">
               <VaAvatar :size="24" :src="user?.photoURL" />
               {{ user?.displayName }}
@@ -78,7 +78,7 @@
               Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
             </p> -->
           </template>
-          <template v-slot:actions>
+          <template v-if="(!!user && cloudConnected)" v-slot:actions>
             <DejaSignout />
           </template>
         </StatusMenuItem>
@@ -114,6 +114,7 @@
           :is-connected="isEmulated"
           item-label="DEJA Demo"
           class="text-pink-400"
+          @disconnect="handleDisconnect()"
           @connect="handleEmulator">    
           {{ isEmulated ? 'Connected' : '' }}
           <template v-slot:desc>
