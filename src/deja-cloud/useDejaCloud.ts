@@ -3,17 +3,19 @@ import {
   collection,
   setDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   query,
   addDoc,
   serverTimestamp,
   where,
   doc,
+  deleteField,
 } from 'firebase/firestore'
 import { storeToRefs } from 'pinia'
 import { useDocument, useCollection, firestoreDefaultConverter } from 'vuefire'
 import { db } from '@/firebase'
-import type { Throttle } from '@/throttle/types'
+import type { Loco, LocoFunction, Throttle } from '@/throttle/types'
 import { useConnectionStore } from '@/connections/connectionStore'
 
 export function useDejaCloud() {
@@ -35,6 +37,16 @@ export function useDejaCloud() {
     const layoutDoc = layoutId.value ? doc(db, 'layouts', layoutId.value) : null
     const layout = useDocument(layoutDoc)
     return layout
+  }
+
+  async function updateFunctions(id: string, functions: LocoFunction[]) {
+    console.log('dejaCloud updateLoco', id, functions)
+    try {
+      const locoDoc = doc(db, `layouts/${layoutId.value}/locos`, id)
+      await setDoc(locoDoc, { functions }, { merge: true })
+    } catch (e) {
+      console.error('Error updating consist: ', e)
+    }
   }
 
   async function updateConsist(locoId, consist) {
@@ -84,10 +96,38 @@ export function useDejaCloud() {
     }
   }
 
+  async function getLocoDbId(address: number) {
+    const locos = query(
+      collection(db, `layouts/${layoutId.value}/locos`),
+      where('locoId', '==', address)
+    )
+    const querySnapshot = await getDocs(locos)
+    console.log('getLocoDbId', querySnapshot.docs[0], querySnapshot.docs[0].id)
+    return await querySnapshot.docs[0].id
+  }
+
+  async function getLocoById(id: string) {
+    console.log('dejaCloud getLocoById', id, typeof id)
+    // return useDocument(doc(db, `layouts/${layoutId.value}/locos`, id))
+    const docRef = doc(db, `layouts/${layoutId.value}/locos`, id)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      console.log('Document data:', docSnap.data(), docSnap.id, docSnap.ref)
+      return docSnap.data()
+    } else {
+      // docSnap.data() will be undefined in this case
+      console.error('No such document!')
+    }
+  }
+
   function getLocos() {
-    return layoutId.value
-      ? useCollection(collection(db, `layouts/${layoutId.value}/locos`))
+    const locosCollection = layoutId.value
+      ? collection(db, `layouts/${layoutId.value}/locos`)
       : null
+    const locos = useCollection(locosCollection)
+    console.log('getLocos', locosCollection, locos, layoutId.value)
+    return locos
   }
 
   function acquireThrottle(address: number) {
@@ -125,10 +165,11 @@ export function useDejaCloud() {
     }
   }
 
-  async function releaseThrottle(throttleId: string) {
+  async function releaseThrottle(throttleId: number) {
     try {
+      console.log('dejaCloud releaseThrottle', throttleId)
       await deleteDoc(
-        doc(db, `layouts/${layoutId.value}/throttles`, throttleId)
+        doc(db, `layouts/${layoutId.value}/throttles`, throttleId.toString())
       )
     } catch (e) {
       console.error('Error adding throttle: ', e)
@@ -161,7 +202,7 @@ export function useDejaCloud() {
   }
 
   async function sendDccCommand({ action, payload }) {
-    console.log('dejaCloud SEND', action, payload)
+    // console.log('dejaCloud SEND', action, payload)
     try {
       const command = {
         action,
@@ -173,7 +214,7 @@ export function useDejaCloud() {
         collection(db, `layouts/${layoutId.value}/dccCommands`),
         command
       )
-      console.log('Document written with ID: ', command)
+      // console.log('Document written with ID: ', command)
     } catch (e) {
       console.error('Error adding document: ', e)
     }
@@ -188,5 +229,8 @@ export function useDejaCloud() {
     getLoco,
     updateConsist,
     getLocos,
+    updateFunctions,
+    getLocoById,
+    getLocoDbId,
   }
 }

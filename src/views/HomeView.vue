@@ -5,21 +5,55 @@
     BsCpu,
   } from 'vue3-icons/bs'
   import { useCurrentUser } from 'vuefire'
-  import { useConnectionStore } from '@/connections/connectionStore.jsx'
-  import RosterView from '../views/RosterView.vue'
+  import router from '@/router'
+  import Roster from '@/core/Roster.vue'
+  import DejaCloudRoster from '@/deja-cloud/DejaCloudRoster.vue'
+  import LayoutChip from '@/core/LayoutChip.vue'
+  import ConnectionChip from '@/core/ConnectionChip.vue'
+  import { useConnectionStore } from '@/connections/connectionStore'
+  import { useDcc } from '@/api/dccApi'
 
   const user = useCurrentUser()
-  const { dejaConnected, isEmulated, serialConnected, cloudConnected } = storeToRefs(useConnectionStore())
+  const { 
+    dejaConnected, 
+    isEmulated, 
+    serialConnected, 
+    cloudConnected, 
+  } = storeToRefs(useConnectionStore())
+
+  const openThrottle = async (address: number) => {
+    router.push({ name: 'cloud-throttle', params: { address } })
+  }
 
 </script>
 <template>
-  <main class="flex flex-col p-8 w-full viaduct-background  bg-opacity-50 bg-fixed overflow-auto">
+  <main class="flex flex-col p-8 w-full viaduct-background bg-opacity-50 bg-fixed overflow-auto">
     <template v-if="dejaConnected || isEmulated || serialConnected || cloudConnected">
-      <h2 v-if="cloudConnected" class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600 my-4">
-          <VaAvatar :size="48" :src="user?.photoURL" />
-          Welcome, {{ user?.displayName }}
+      <header class="flex justify-between items-center">
+        <h2 v-if="cloudConnected" class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600 my-4">
+            <VaAvatar :size="48" :src="user?.photoURL" />
+            Welcome, {{ user?.displayName }}
+        </h2>
+        <h2 v-else class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600 my-4">
+            Welcome to DEJA Throttle
+        </h2>
+        <aside>
+          <LayoutChip />
+          <VaDivider vertical />
+          <ConnectionChip />
+        </aside>
+    </header>
+      <h2 class="mt-4 text-transparent text-4xl bg-clip-text bg-gradient-to-r from-purple-300 to-pink-600">
+        Select
+        Your<br>
+        <strong class="text-7xl uppercase">Loco</strong>
       </h2>
-      <RosterView />
+      <template v-if="cloudConnected">
+        <DejaCloudRoster @selected="openThrottle" />
+      </template>
+      <template v-else>
+        <Roster />
+      </template>
     </template>
     <template v-else>
       <h2 class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600 my-4">

@@ -15,15 +15,11 @@ const layouts = useCollection(layoutsQuery)
 </script>
 
 <template>
+  <h4 class="text-sm uppercase text-indigo-500">
+   Your Layouts
+  </h4>   
   <main class="px-8 py-4 grid grid-cols-1 gap-4 md:grid-cols-2" v-if="user && layouts?.length > 0">
-    <!-- <pre>{{ user }}</pre> -->
-     <h3 class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">
-        <VaAvatar :size="48" :src="user?.photoURL" />
-        Welcome, {{ user?.displayName }}
-      </h3>
-     <h4 class="text-sm uppercase text-indigo-500">
-      Your Layouts
-    </h4>      
+    <!-- <pre>{{ user }}</pre> -->   
     <nav class="flex flex-col items-center min-w-48">
       <button v-for="layout in layouts" 
         :key="layout.layoutId" 

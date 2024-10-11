@@ -41,6 +41,11 @@ const router = createRouter({
       name: 'deja-cloud',
       component: () => import('../connections/deja/DejaCloud.vue'),
     },
+    {
+      path: '/connect/deja-server',
+      name: 'deja-server',
+      component: () => import('../connections/deja/DejaServer.vue'),
+    },
   ],
 })
 

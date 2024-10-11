@@ -1,17 +1,21 @@
 <script setup lang="ts">
-  import { ref, watch, computed, type PropType } from 'vue'
+  import { ref, watch, computed, onMounted, type PropType } from 'vue'
+  import { storeToRefs } from 'pinia'
   import { debounce } from 'vue-debounce'
+  import { computedAsync } from '@vueuse/core'
   import { FaParking } from "vue3-icons/fa";
+  import { getDocs, doc } from 'firebase/firestore'
   import ThrottleButtonControls from './ThrottleButtonControls.component.vue'
   import ThrottleSliderControls from './ThrottleSliderControls.component.vue'
   import CurrentSpeed from './CurrentSpeed.component.vue'
   import ThrottleHeader from './ThrottleHeader.component.vue'
   import Consist from '@/consist/Consist.component.vue'
   import Functions from '@/functions/Functions.component.vue'
-  import router from '../router'
   import type { Loco, LocoFunction, ConsistLoco, Throttle } from './types';
   import { useThrottle } from './useThrottle'
+  import { useDejaCloudStore } from '@/deja-cloud/dejaCloudSore'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
+  import { useConnectionStore } from '@/connections/connectionStore'
 
   const DEBOUNCE_DELAY = 100 // debounce speed changes by 100ms to prevent too many requests
   const SWITCH_DIR_DELAY = 1000 // delay in ms to switch direction - occurs when slider goes from positive to negative value - which an occur quickly
@@ -26,11 +30,14 @@
   const emit = defineEmits(['release'])
 
   const { updateSpeed } = useThrottle()
-  const { getLoco } = useDejaCloud()
+  const connStore = useConnectionStore()
+  const dejaCloudStore = useDejaCloudStore()
+  const dejaCloud = useDejaCloud()
+  const { layoutId } = storeToRefs(connStore)
+  // const { locoDocId } = storeToRefs(dejaCloudStore)
 
-  const locos = props?.throttle?.address
-    ? getLoco(props.throttle.address.toString())
-    : null
+  const locoDocId = computedAsync(async () => await dejaCloud.getLocoDbId(props.throttle.address), null)
+  const loco = computedAsync(async () => locoDocId.value ? await dejaCloud.getLocoById(locoDocId.value) : null, null)
 
   const currentSpeed = ref(props.throttle?.speed || 0)
 
@@ -48,18 +55,10 @@
     setSpeed(parseInt(val.toString()))
   }
 
-  function handleSaveLoco(loco: Loco): void {
-    // if (loco) {
-    //   locos.value = locos.value.map(l => l.address === loco.address ? loco : l)
-    //   throttleStore.setLocos(locos.value)
-    // }
-  }
-
   async function clearLoco() {
     console.log('clearLoco', props.throttle)
     await handleStop()
-    emit('release')
-    router.push({ name: 'home' })
+    emit('release', props.throttle?.address)
   }
 
   async function sendLocoSpeed(newSpeed:number, oldSpeed:number) {
@@ -72,10 +71,11 @@
 </script>
 <template>
   <main class="card m-2 shadow-xl flex-grow overflow-auto relative bg-gradient-to-br from-violet-800 to-cyan-500 bg-gradient-border " v-if="throttle">
-    <!-- <pre>{{throttle.address}}</pre> -->
+    <!-- <pre>locoDocId:{{locoDocId}}</pre>-->
+    <!-- <pre>loco:{{loco.functions}}</pre>  -->
     <ThrottleHeader :address="throttle.address">
       <aside class="flex items-center ">
-        <Consist v-if="locos" :loco="locos?.[0]" />
+        <!-- <Consist v-if="locoDocId" :loco="locoDocId" /> -->
         <button class="text-sky-500" @click="clearLoco">
           <FaParking alt="clear layout" class="h-12 w-12" />
         </button>
@@ -85,8 +85,8 @@
       <section class="pt-4 pb-8 px-1 text-center  flex-1">
         <ThrottleSliderControls :speed="currentSpeed" @update:currentSpeed="setSliderSpeed" @stop="handleStop" />  
       </section>
-      <section class="pt-4 flex flex-col items-center justify-between flex-1">
-        <Functions v-if="locos" :loco="locos?.[0]" @save-loco="handleSaveLoco" />
+      <section v-if="loco" class="pt-4 flex flex-col items-center justify-between flex-1">
+        <Functions :loco="loco" />
         <CurrentSpeed :speed="currentSpeed" />
         <ThrottleButtonControls :speed="currentSpeed" @update:currentSpeed="adjustSpeed" @stop="handleStop" />
       </section>

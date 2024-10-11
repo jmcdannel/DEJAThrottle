@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { computed } from 'vue'
   import { useRoute } from 'vue-router'
+  import router from '../router'
 
   import ThrottleComponent from '@/throttle/Throttle.component.vue'
   import type { Throttle } from '@/throttle/types'
@@ -13,8 +14,12 @@
     ? acquireThrottle(parseInt(route.params.address?.toString()))
     : null)
 
-  function handleRelease() {
-    throttle.value?.id && releaseThrottle(throttle.value?.id)
+  function handleRelease(address) {
+    console.log('handleRelease', throttle.value, address)
+    if (address) {
+      releaseThrottle(address)
+      router.push({ name: 'home' })
+    }
   }
 
 </script>

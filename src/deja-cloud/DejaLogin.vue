@@ -8,16 +8,32 @@ import { getRedirectResult, signInWithPopup } from 'firebase/auth'
 import { useFirebaseAuth } from 'vuefire'
 import { FaGithubAlt, FaGoogle, FaMicrosoft, FaApple, FaFacebook } from 'vue3-icons/fa6'
 
+const emit = defineEmits(['auth'])
+const props = defineProps({
+  isAuthenticated: {
+    type: Boolean,
+    default: false
+  }
+})
 const auth = useFirebaseAuth()
 
 // display errors if any
 const error = ref(null)
 
-function handleGithubSignin() {
-  signInWithPopup(auth, githubAuthProvider).catch((reason) => {
-    console.error('Failed signinRedirect', reason)
-    error.value = reason
-  })
+async function handleGithubSignin() {
+  // authComplete()
+  try {
+    const resp = await signInWithPopup(auth, githubAuthProvider)
+    console.log('Github signin success', resp)
+    authComplete()
+  } catch (err) {
+    console.error('Failed signinRedirect', err)
+    error.value = err
+  }
+}
+
+function authComplete() {
+  emit('auth', {})
 }
 
 onMounted(() => {
@@ -29,26 +45,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="flex flex-col h-screen max-w-screen-md mx-auto forest-background">
+  <main class="flex flex-col max-w-screen-xm">
     <header class="flex flex-col space-y-4 items-start m-12">
       <h1
         class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-pink-600"
       >
         Welcom to DEJA Cloud
       </h1>
-      <h2
-        class="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-800 to-indigo-600"
-      >
-        Sign in to continue.
-      </h2>
     </header>
+    <pre>isAuthenticated: {{ isAuthenticated }}</pre>
 
     <template v-if="error">
       <div class="alert alert-error">
         {{ error.message }}
       </div>
     </template>
-    <template v-else>
+    <template v-else-if="isAuthenticated">
+      <div class="alert alert-success">
+        Sign in success
+      </div>
+    </template>
+    <template v-else-if="!isAuthenticated">
+      <h2
+        class="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-800 to-indigo-600"
+      >
+        Sign in to continue.
+      </h2>
       <article class="flex flex-col space-y-4 items-start m-12">
         <VaButton
           preset="secondary"

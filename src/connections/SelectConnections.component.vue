@@ -1,6 +1,8 @@
 <script setup lang="ts">
   import { storeToRefs } from 'pinia'
   import { useCurrentUser } from 'vuefire'
+  import { useModal, useToast } from 'vuestic-ui'
+
   import { 
     BsFillLightningCharge,
     BsFillLightningChargeFill,
@@ -18,20 +20,29 @@
   import StatusMenuItem from '@/core/StatusMenu/StatusMenuItem.component.vue'
   import DejaSignout from '@/deja-cloud/DejaSignout.vue'
   import useSerial from '@/api/serialApi'
+  import router from '@/router' 
  
+  const { confirm } = useModal()
+  const { init } = useToast()
   const serialApi = useSerial()
   const user = useCurrentUser()
   const connStore = useConnectionStore()
-  const { layoutId, isEmulated, dejaConnected, serialConnected, cloudConnected } = storeToRefs(connStore)  
+  const { 
+    layoutId, 
+    isEmulated, 
+    isSerial,
+    isDejaJS,
+    isDejaServer
+  } = storeToRefs(connStore)  
 
-  const handleDisconnect = () => {
+  function handleDisconnect() {
     connStore.disconnect()
   }
 
-  const handleSerial = () => {
-    console.log('handleSerial', serialConnected.value)
+  function handleSerial() {
+    console.log('handleSerial', isSerial.value)
     try {
-      if (serialConnected.value) {
+      if (isSerial.value) {
         serialApi.disconnect()
       } else {
         serialApi.connect()
@@ -41,12 +52,33 @@
     }
   }
 
-  const handleEmulator = () => {
+  function handleEmulator() {
     console.log('handleEmulator', isEmulated.value)
     if (isEmulated.value) {
       connStore.disconnect()
     } else {
       connStore.connect('emulator')
+    }
+  }
+
+  async function handleDejaServer() {
+    console.log('handleDejaServer', isDejaServer.value, !!user.value, user)
+    if (!!user.value) {
+      router.push({ name: 'deja-server' })
+    } else {
+      console.log('login to deja cloud first')
+      const result = await confirm({
+        message: 'You must login to Deja Cloud first.',
+        title: 'DEJA Cloud',
+        okText: "Login",
+        cancelText: "Cancel",
+      })
+
+      if (result) {
+        router.push({ name: 'deja-cloud' })
+      } else {
+        init('DEJA Server Cancelled')
+      }
     }
   }
 
@@ -63,13 +95,11 @@
       <div class="stats stats-vertical w-full">
         <StatusMenuItem 
           :icon="BsCloud" 
-          :is-connected="(!!user && cloudConnected)"
+          :is-connected="(!!user)"
           item-label="DEJA Cloud" 
           page="deja-cloud"
-          @disconnect="handleDisconnect()"
-          class="text-pink-400">    
-          <VaChip v-if="(!!user && cloudConnected)" @click="$router.push({ name: 'deja-cloud' })" outline :color="cloudConnected ? 'success' : 'gray-500'">{{ layoutId }}</VaChip>
-          <template v-if="(!!user && cloudConnected)" v-slot:desc>
+          @disconnect="handleDisconnect()">    
+          <template v-if="(!!user)" v-slot:desc>
             <h3 class="pt-2 text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">
               <VaAvatar :size="24" :src="user?.photoURL" />
               {{ user?.displayName }}
@@ -78,18 +108,31 @@
               Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
             </p> -->
           </template>
-          <template v-if="(!!user && cloudConnected)" v-slot:actions>
-            <DejaSignout />
+          <template v-slot:actions>
+            <DejaSignout v-if="(!!user)" />
+            <template v-else>
+              <button @click="$router.push({ name: 'deja-cloud' })" class="btn btn-sm btn-outline btn-primary">
+                <BsCloud class="h-3 w-3 stroke-none mx-1 text-error" />
+                Login
+              </button>
+            </template>
           </template>
         </StatusMenuItem>
         <StatusMenuItem 
+          :icon="BsCloud" 
+          :is-connected="(isDejaServer)"
+          item-label="DEJA Server" 
+          @connect="handleDejaServer()"
+          @disconnect="handleDisconnect()">    
+          <VaChip v-if="(isDejaServer)" @click="$router.push({ name: 'deja-cloud' })" outline :color="isDejaServer ? 'success' : 'gray-500'">{{ layoutId }}</VaChip>          
+        </StatusMenuItem>
+        <StatusMenuItem 
           :icon="BiServer" 
-          :is-connected="dejaConnected"
+          :is-connected="isDejaJS"
           item-label="DEJA.js" 
           page="dejajs"
-          @disconnect="handleDisconnect()"
-          class="text-pink-400">    
-          {{ dejaConnected ? 'Connected' : '' }}
+          @disconnect="handleDisconnect()">    
+          {{ isDejaJS ? 'Connected' : '' }}
           <template v-slot:desc>
             <!-- <p class="py-1">
               Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
@@ -98,11 +141,11 @@
         </StatusMenuItem>
         <StatusMenuItem 
           :icon="BsUsbSymbol" 
-          :is-connected="serialConnected"
+          :is-connected="isSerial"
           item-label="DEJA Direct"  
-            @disconnect="handleDisconnect()"
+          @disconnect="handleDisconnect()"
           @connect="handleSerial">    
-          {{ serialConnected ? 'Connected' : '' }}
+          {{ isSerial ? 'Connected' : '' }}
           <template v-slot:desc>
             <!-- <p class="py-1">
               Connect DEJA Throttle to a DCCEX Command Station Arduino connected directly to this computer. Requires modern Chromium browser.
@@ -113,7 +156,6 @@
           :icon="BsCupHotFill" 
           :is-connected="isEmulated"
           item-label="DEJA Demo"
-          class="text-pink-400"
           @disconnect="handleDisconnect()"
           @connect="handleEmulator">    
           {{ isEmulated ? 'Connected' : '' }}

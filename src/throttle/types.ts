@@ -10,6 +10,7 @@ export interface Loco {
   name: string
   consist: ConsistLoco[]
   functions: LocoFunction[]
+  id?: string
 }
 export interface Throttle {
   id?: number

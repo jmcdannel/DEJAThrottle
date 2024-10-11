@@ -180,19 +180,24 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
           </template>
 
 
-          <StatusMenuItem
-          
+          <StatusMenuItem          
             :icon="BsCpu" 
             :is-connected="!!layoutId && (dccExConnected || dejaConnected || isEmulated || serialConnected)"
             item-label="DCC-EX CommandStation" 
             page="deja"
             @connect="$router.push({ name: 'connect' })"
             class="text-purple-600">
-            <VaChip v-if="dccExConnected" outline closable>{{  layoutId }}</VaChip>
-            <VaChip v-else-if="dejaConnected" outline closable>{{  layoutId }}</VaChip>
-            <VaChip v-else-if="serialConnected" outline>USB Direct</VaChip>
-            <VaChip v-else-if="isEmulated" outline>Emulator</VaChip>
-            <VaChip :color="disabledColor" v-else outline>Disconnected</VaChip>
+            <router-link
+              :to="`/connect`"
+              custom
+              v-slot="{ navigate }"
+            >
+              <VaChip v-if="dccExConnected" @click="navigate" outline closable>{{  layoutId }}</VaChip>
+              <VaChip v-else-if="dejaConnected" @click="navigate" outline closable>{{  layoutId }}</VaChip>
+              <VaChip v-else-if="serialConnected" @click="navigate" outline>USB Direct</VaChip>
+              <VaChip v-else-if="isEmulated" @click="navigate" outline>Emulator</VaChip>
+              <VaChip :color="disabledColor" v-else @click="navigate" outline>Disconnected</VaChip>
+          </router-link>
             <template v-if="layoutId" v-slot:actions>
               <button @click="handleDisconnect" class="btn btn-sm btn-outline btn-primary">
                 <BsCpu class="h-3 w-3 stroke-none" />

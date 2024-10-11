@@ -10,7 +10,14 @@
     address: {
         type: Number
     },
-    
+    showLabel: {
+        type: Boolean,
+        default: false
+    },
+    showDefaultIcon: {
+        type: Boolean,
+        default: false
+    }
   })
   
   const dccApi = useDcc()  
@@ -27,11 +34,13 @@
   }
 </script>
 <template>
-  <button @click="cabFuction()"
+  <button v-if="func" @click="cabFuction()"
     class="relative btn btn-md bg-gradient-to-br from-cyan-600 to-indigo-600">
     <FunctionIcon v-if="func?.icon" :icon="func?.icon" class="w-4 h-4 md:w-6 md:h-6" />
+    <FunctionIcon v-else-if="showDefaultIcon" icon="track" class="w-4 h-4 md:w-6 md:h-6" />
     <template v-else>
       <div class="w-4 h-4 md:w-6 md:h-6 flex items-center justify-center">{{ func?.label }}</div>
     </template>
+    <span v-if="showLabel" class="ml-2">{{ func?.label }}</span>
   </button>  
 </template>

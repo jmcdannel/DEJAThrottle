@@ -3,15 +3,15 @@
   import { storeToRefs } from 'pinia'
   import { RouterView } from 'vue-router'
   import { useConnectionStore } from '@/connections/connectionStore'
-  import {  useCurrentUser } from 'vuefire'
+  import { useCurrentUser } from 'vuefire'
   import HeaderView from '@/views/HeaderView.vue'
   import FooterView from '@/views/FooterView.vue'
   import DEJAConnect from '@/core/DEJAConnect.component.vue'
   import DejaCloudConnect from '@/deja-cloud/DejaCloudConnect.vue'
   
   const user = useCurrentUser()
-  const conn = useConnectionStore()
-  const { layoutId, dejaConnected, cloudConnected } = storeToRefs(conn)
+  const connectionStore = useConnectionStore()
+  const { layoutId, dejaConnected, cloudConnected } = storeToRefs(connectionStore)
   
 </script>
 
