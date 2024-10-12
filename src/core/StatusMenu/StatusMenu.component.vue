@@ -7,7 +7,6 @@
   import useSerial from '@/api/serialApi'
   import { useDcc } from '@/api/dccApi'
   import { 
-    BsFillLightningCharge,
     BsFillLightningChargeFill,
     BsUsbSymbol,
     BsCloud,
@@ -25,7 +24,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
   const dccApi = useDcc()
   const serialApi = useSerial()
   const connStore = useConnectionStore()
-  const { cloudConnected, dejaConnected, isEmulated, serialConnected, dccExConnected, layoutId } = storeToRefs(connStore)
+  const { isDejaServer, isDejaJS, isSerial, isEmulated, dccExConnected, layoutId } = storeToRefs(connStore)
 
   const handleDisconnect = () => {
     connStore.disconnect()
@@ -36,9 +35,9 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
   }
 
   const handleSerial = () => {
-    console.log('handleSerial', serialConnected.value)
+    console.log('handleSerial', isSerial.value)
     try {
-      if (serialConnected.value) {
+      if (isSerial.value) {
         serialApi.disconnect()
       } else {
         serialApi.connect()
@@ -58,23 +57,27 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
   }
 
   function getIcon() {
-    return serialConnected.value
-      ? BsUsbSymbol
-      : dejaConnected.value
-        ? BsFillLightningChargeFill
-        : isEmulated.value
-          ? BsCupHotFill
-          : BsFillLightningChargeFill
+    if (isSerial.value) {
+      return BsUsbSymbol
+    } else if (isDejaJS.value) {
+      return BsFillLightningChargeFill
+    } else if (isDejaServer.value) {
+      return BsCloud
+    } else if (isEmulated) {
+      return BsCupHotFill
+    } else {
+      return BsUsbPlug 
+    }
   }
 
   const statusIcons = reactive([
     { 
       icon: getIcon(), 
-      color:  (isEmulated.value || dejaConnected.value || serialConnected.value) ? 'text-success' : 'text-error' 
+      color:  (isEmulated.value || isDejaServer.value || isDejaJS.value || isSerial.value) ? 'text-success' : 'text-error' 
     },
     { 
       icon: BsCpu,
-      color: (serialConnected.value || dejaConnected.value && layoutId || isEmulated.value) ? 'text-success' : 'text-error' 
+      color: (isEmulated.value || isDejaServer.value || isDejaJS.value || isSerial.value) ? 'text-success' : 'text-error' 
     },
     { 
       icon: BsCloudFill, 
@@ -92,14 +95,14 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
       <div tabindex="0" role="button" class="btn m-1">
         <ul class="flex items-center justify-center">
           <li class="mx-1">
-            <BsCloudFill v-if="cloudConnected" class="w-4 h-4 text-success  stroke-none" />
-            <BsFillLightningChargeFill v-else-if="dejaConnected" class="w-4 h-4 text-success  stroke-none" />
-            <BsUsbSymbol v-else-if="serialConnected" class="w-4 h-4 text-success  stroke-none" />
+            <BsCloudFill v-if="isDejaServer" class="w-4 h-4 text-success  stroke-none" />
+            <BsFillLightningChargeFill v-else-if="isDejaJS" class="w-4 h-4 text-success  stroke-none" />
+            <BsUsbSymbol v-else-if="isSerial" class="w-4 h-4 text-success  stroke-none" />
             <BsCupHotFill v-else-if="isEmulated" class="w-4 h-4 text-success  stroke-none" />
-            <BsCloud v-else class="w-4 h-4 text-error" />
+            <BsFillLightningChargeFill v-else class="w-4 h-4 text-error" />
           </li>
           <li class="mx-1">
-            <BsCpu v-if="!!layoutId && (dccExConnected || dejaConnected || isEmulated || serialConnected)" class="w-4 h-4 text-success  stroke-none" />
+            <BsCpu v-if="(dccExConnected || isEmulated || isSerial)" class="w-4 h-4 text-success stroke-none" />
             <BsCpu v-else class="w-4 h-4 text-error" />
           </li>
           <li class="mx-1">
@@ -113,14 +116,16 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
         class="dropdown-content z-20 w-auto">
         <div class="stats stats-vertical shadow bg-slate-900">
 
-          <template v-if="!(dejaConnected || isEmulated || serialConnected || cloudConnected)">
-            <StatusMenuItem 
+          <StatusMenuItem 
               :icon="BsCloudFill" 
-              :is-connected="false"
+              :is-connected="!!user"
               item-label="DEJA Cloud" 
               page="deja"
               class="text-neutral">    
-              <template v-slot:actions>
+              <template v-if="!!user" v-slot:actions>
+                <DejaSignout class="outline" outline />
+              </template>
+              <template v-else v-slot:actions>
                 <button @click="$router.push({ name: 'deja-cloud' })" class="btn btn-sm btn-outline mr-2" >
                   Login
                 </button>
@@ -129,43 +134,51 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
                 </button>
               </template>
             </StatusMenuItem>
+
+          <template v-if="!(dccExConnected || isEmulated || isSerial)">
+            <StatusMenuItem 
+              :icon="BsFillLightningChargeFill" 
+              :is-connected="false"
+              item-label="Connection" 
+              page="deja"
+              class="text-neutral">    
+              <template v-slot:actions>
+                <button @click="$router.push({ name: 'connect' })" class="btn btn-sm btn-outline mr-2" >
+                  Connect
+                </button>
+              </template>
+            </StatusMenuItem>
           </template>
 
           <template v-else>
             <StatusMenuItem 
-              v-if="cloudConnected"
-              :icon="BsCloudFill" 
-              :is-connected="cloudConnected"
-              item-label="DEJA Cloud" 
-              page="deja-cloud"
-              @disconnect="handleDisconnect"
-              class="text-pink-400">              
-              <h3 class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">
-                <VaAvatar :size="24" :src="user?.photoURL" />
-                {{ user?.displayName }}
-              </h3>
-              <template v-slot:actions>
-                <DejaSignout class="outline" outline />
-              </template>
-            </StatusMenuItem>
-            <StatusMenuItem 
-              v-if="dejaConnected"
+              v-if="isDejaServer"
               :icon="BsFillLightningChargeFill" 
-              :is-connected="dejaConnected"
+              :is-connected="isDejaServer"
               item-label="DEJA.js" 
               page="dejajd"
               @disconnect="handleDisconnect"
               class="text-pink-400">    
-              {{ dejaConnected ? layoutId : '' }}
+              {{ isDejaServer ? layoutId : '' }}
             </StatusMenuItem>
             <StatusMenuItem 
-              v-if="serialConnected"
+              v-if="isDejaJS"
+              :icon="BsFillLightningChargeFill" 
+              :is-connected="isDejaJS"
+              item-label="DEJA.js" 
+              page="dejajd"
+              @disconnect="handleDisconnect"
+              class="text-pink-400">    
+              {{ isDejaJS ? layoutId : '' }}
+            </StatusMenuItem>
+            <StatusMenuItem 
+              v-if="isSerial"
               :icon="BsUsbSymbol" 
-              :is-connected="serialConnected"
+              :is-connected="isSerial"
               item-label="USB Serial" 
               @disconnect="handleDisconnect"
               @connect="handleSerial">    
-              {{ serialConnected ? 'Connected' : '' }}
+              {{ isSerial ? 'Connected' : '' }}
             </StatusMenuItem>
             <StatusMenuItem 
               v-if="isEmulated"
@@ -182,7 +195,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
 
           <StatusMenuItem          
             :icon="BsCpu" 
-            :is-connected="!!layoutId && (dccExConnected || dejaConnected || isEmulated || serialConnected)"
+            :is-connected="(dccExConnected || isSerial || isEmulated)"
             item-label="DCC-EX CommandStation" 
             page="deja"
             @connect="$router.push({ name: 'connect' })"
@@ -192,12 +205,12 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
               custom
               v-slot="{ navigate }"
             >
-              <VaChip v-if="dccExConnected" @click="navigate" outline closable>{{  layoutId }}</VaChip>
-              <VaChip v-else-if="dejaConnected" @click="navigate" outline closable>{{  layoutId }}</VaChip>
-              <VaChip v-else-if="serialConnected" @click="navigate" outline>USB Direct</VaChip>
-              <VaChip v-else-if="isEmulated" @click="navigate" outline>Emulator</VaChip>
+              <VaChip v-if="isDejaJS" @click="navigate" outline closable>{{  layoutId }}</VaChip>
+              <VaChip v-else-if="isDejaServer" @click="navigate" outline closable>{{  layoutId }}</VaChip>
+              <VaChip v-else-if="isSerial" @click="navigate" outline>USB Direct</VaChip>
+              <VaChip v-else-if="isEmulated" @click="navigate" outline>Emulated</VaChip>
               <VaChip :color="disabledColor" v-else @click="navigate" outline>Disconnected</VaChip>
-          </router-link>
+            </router-link>
             <template v-if="layoutId" v-slot:actions>
               <button @click="handleDisconnect" class="btn btn-sm btn-outline btn-primary">
                 <BsCpu class="h-3 w-3 stroke-none" />
@@ -211,7 +224,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
               </button> -->
             </template>
             <template v-else v-slot:actions>
-              
+              <template></template>
             </template>
           </StatusMenuItem>
 

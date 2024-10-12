@@ -11,15 +11,15 @@
   
   const user = useCurrentUser()
   const connectionStore = useConnectionStore()
-  const { layoutId, dejaConnected, cloudConnected } = storeToRefs(connectionStore)
+  const { layoutId, isDejaJS, isDejaServer } = storeToRefs(connectionStore)
   
 </script>
 
 <template>
-  <template v-if="dejaConnected && layoutId">
+  <template v-if="isDejaJS && layoutId">
     <DEJAConnect />
   </template>
-  <template v-if="user && layoutId">
+  <template v-if="isDejaServer && layoutId">
     <DejaCloudConnect />
   </template>
   <main class="flex flex-col h-screen max-w-screen-md mx-auto">
