@@ -1,10 +1,18 @@
 <script setup>
   import { ref } from 'vue'
   import { storeToRefs } from 'pinia'
+import { useCurrentUser } from 'vuefire'
   import { useConnectionStore } from '@/connections/connectionStore'
   import useDcc from '@/api/dccApi'
 
-  const { dejaConnected, isEmulated, serialConnected, cloudConnected } = storeToRefs(useConnectionStore())
+  const user = useCurrentUser()
+  const {
+    isDejaJS,
+    isDejaServer,
+    isEmulated,
+    isSerial,
+    dccExConnected
+   } = storeToRefs(useConnectionStore())
   const dccApi = useDcc()
   const power = ref(false)
 
@@ -19,12 +27,12 @@
 </script>
 <template>
   <button @click="handlePower"
-    :disabled="!(dejaConnected || isEmulated || serialConnected || cloudConnected)"
+    :disabled="!(dccExConnected || isEmulated || isSerial)"
     class="btn btn-ghost btn-circle relative"
     :class="{
-      'text-gray-500': !(dejaConnected || isEmulated || serialConnected || cloudConnected),
-      'text-success': (dejaConnected || isEmulated || serialConnected || cloudConnected) && power,
-      'text-error': (dejaConnected || isEmulated || serialConnected || cloudConnected) && !power,  
+      'text-gray-500': !(dccExConnected || isEmulated || isSerial),
+      'text-success': (dccExConnected || isEmulated || isSerial) && power,
+      'text-error': (dccExConnected || isEmulated || isSerial) && !power,  
     }">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />

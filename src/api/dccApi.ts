@@ -1,123 +1,108 @@
-import { ref, toRefs } from "vue"
-import { storeToRefs } from "pinia"
-import { useMQTT } from "mqtt-vue-hook"
-import { useSerial } from "@/api/serialApi.js"
-import { useConnectionStore } from "@/connections/connectionStore.jsx"
-import { useCollection, useCurrentUser } from "vuefire"
-import { useDejaCloud } from "@/deja-cloud/useDejaCloud.js"
+import { storeToRefs } from 'pinia'
+import { useSerial } from '@/api/serialApi.js'
+import { useDejaJs } from '@/api/useDejaJs'
+import { useConnectionStore } from '@/connections/connectionStore.jsx'
+import { useCollection, useCurrentUser } from 'vuefire'
+import { useDejaCloud } from '@/deja-cloud/useDejaCloud.js'
 
 export function useDcc() {
   const user = useCurrentUser()
-  const mqttHook = useMQTT()
-  const serialApi = useSerial()
   const connStore = useConnectionStore()
+  const serialApi = useSerial()
+  const dejaJsApi = useDejaJs()
   const dejaCloud = useDejaCloud()
-  const { layoutId } = storeToRefs(connStore)
-
-  let ports: never[] = []
-
-  async function parseMessage(topic: string, message: string) {
-    try {
-      const { action, payload } = JSON.parse(message)
-      console.log("[DCC API] parseMessage", topic, message, action, payload)
-      switch (action) {
-        case "portList":
-          ports = payload || []
-          connStore.ports = ports
-          break
-        case "status":
-          connStore.dejaConnected = !!payload?.isConnected
-          break
-        case "connected":
-          connStore.dejaConnected = true
-          break
-      }
-    } catch {
-      console.warn("Message not in JSON format.")
-    }
-  }
+  const {
+    layoutId,
+    isDejaJS,
+    isDejaServer,
+    isEmulated,
+    isSerial,
+    dccExConnected,
+    mqttConnected,
+  } = storeToRefs(connStore)
 
   async function setPower(payload: object) {
     try {
-      console.log("[DCC API].setPower", payload)
-      await send("power", payload)
+      console.log('[DCC API].setPower', payload)
+      await send('power', payload)
     } catch (err: any) {
-      console.error("[DCC API].setPower", err)
+      console.error('[DCC API].setPower', err)
       throw new Error(err)
     }
   }
 
   async function setSpeed(address: any, speed: any) {
     try {
-      await send("throttle", { address, speed })
+      await send('throttle', { address, speed })
     } catch (err: any) {
-      console.error("[DCC API].setPower", err)
+      console.error('[DCC API].setPower', err)
       throw new Error(err)
     }
   }
 
   async function setTurnout(turnoutId: any, state: any) {
     try {
-      send("turnout", { turnoutId, state })
+      send('turnout', { turnoutId, state })
     } catch (err: any) {
-      console.error("[DCC API].setTurnout", err)
+      console.error('[DCC API].setTurnout', err)
       throw new Error(err)
     }
   }
 
   async function setFunction(address: any, func: any, state: any) {
     try {
-      await send("function", { address, func, state })
+      await send('function', { address, func, state })
     } catch (err: any) {
-      console.error("[DCC API].setPower", err)
+      console.error('[DCC API].setPower', err)
       throw new Error(err)
     }
   }
 
   async function sendOutput(pin: any, state: any) {
     try {
-      console.log("[DCC API].sendOutput", pin, state)
-      await send("output", { pin, state })
+      console.log('[DCC API].sendOutput', pin, state)
+      await send('output', { pin, state })
     } catch (err: any) {
-      console.error("[DCC API].setPower", err)
+      console.error('[DCC API].setPower', err)
       throw new Error(err)
     }
   }
 
   async function send(action: string, payload?: object) {
     try {
-      if (connStore.isEmulated) {
-        console.log("[DEJA EMULATOR] send", action, payload)
+      if (isEmulated.value) {
+        console.log('[DEJA EMULATOR] send', action, payload)
         return
-      } else if (connStore.serialConnected) {
-        console.log("[SERIAL] send", action, payload)
+      } else if (isSerial.value) {
+        console.log('[SERIAL] send', action, payload)
         serialApi.send(action, payload)
         return
-      } else if (connStore.dejaConnected) {
+      } else if (isDejaJS.value || mqttConnected.value) {
         console.log(
-          "[dccApi] send",
+          '[dejaJsApi] send',
           `@ttt/dcc/${layoutId.value}`,
           action,
           payload,
           user?.value?.displayName
         )
-        mqttHook.publish(
-          `@ttt/dcc/${layoutId.value}`,
-          JSON.stringify({ action, payload })
-        )
-      } else if (connStore.cloudConnected) {
+        dejaJsApi.send({ action, payload })
+        // mqttHook.publish(
+        //   `@ttt/dcc/${layoutId.value}`,
+        //   JSON.stringify({ action, payload })
+        // )
+      } else if (isDejaServer.value) {
         console.log(
-          "[cloud] send",
+          '[dejaCloud] send',
           `@ttt/dcc/${layoutId.value}`,
           action,
           payload
         )
         dejaCloud.send({ action, payload })
       } else {
-        console.error("[DISCONNECTED] !send", action, payload, connStore)
+        console.error('[DISCONNECTED] !send', action, payload, connStore)
       }
     } catch (err) {
-      console.error("[DCC API].send", err)
+      console.error('[DCC API].send', err)
     }
   }
 
@@ -128,8 +113,6 @@ export function useDcc() {
     setFunction,
     sendOutput,
     setTurnout,
-    parseMessage,
-    ports: ports,
   }
 }
 

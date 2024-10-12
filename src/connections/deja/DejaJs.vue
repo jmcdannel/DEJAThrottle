@@ -1,24 +1,32 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
   import { storeToRefs } from 'pinia'
+  import { useCurrentUser } from 'vuefire'
   import ConnectionStatus from '@/core/ConnectionStatus.component.vue'
   import useDcc from '@/api/dccApi'
+  import { useDejaJs } from '@/api/useDejaJs'
   import router from '@/router'
   import tttButton from '@/shared/ui/tttButton.component.vue'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
   import closeIconSvg from '@/assets/icons/close.svg'
   
+  const user = useCurrentUser()
   const dccApi = useDcc()
+  const dejaJsApi = useDejaJs()
   const conn = useConnectionStore()
-  const { layoutId, ports, dejaConnected } = storeToRefs(conn)
-  const dccStatus = ref(dejaConnected.value ? 'connected' : 'disconnected')
+  const { layoutId, ports, isDejaJS, mqttConnected, dccExConnected } = storeToRefs(conn)
+  const dccStatus = ref(isDejaJS.value && dccExConnected.value ? 'connected' : 'disconnected')
   const storedLayoutsData = localStorage.getItem('@DEJA/layouts')
   const MAX_SAVED_LAYOUTS = 10
   const layouts = ref(storedLayoutsData ? JSON.parse(storedLayoutsData) : [])
   const layout = ref(null)
 
   onMounted(async () => {
-    dccApi.send('listPorts', { })
+    if (layoutId.value) {
+      console.log('connecting from DejaJs')
+      dejaJsApi.connectMqtt()
+    }
+    // dccApi.send('listPorts', { })
   });
 
   const handleRefreshClick = () => {
@@ -43,6 +51,7 @@
     console.log('LayoutConnect.handleGoClick', layout.value)
     layoutId.value = layout.value
     !!layout.value && savelayout(layout.value)
+    await dejaJsApi.connectMqtt()
     
   }
   const handleDisconnectClick = () => {
@@ -61,12 +70,12 @@
     localStorage.setItem('@DEJA/layoutId', layout)
   }
 
-  const handleLayoutSelect = (e:any) => {
+  const handleLayoutSelect = async (e:any) => {
     console.log('SELECTlayout.navigate', e.target.value)
     const newLayoutId = e.target.value
-    layoutId.value = newLayoutId
-    
+    layoutId.value = newLayoutId    
     !!newLayoutId && savelayout(newLayoutId)
+    await dejaJsApi.connectMqtt()
   }
 
   const clearLayout = (e:any) => {
@@ -90,8 +99,9 @@
     </header>
     <main class="my-1 pt-8 flex-grow flex flex-col">  
       <div class="p-2">
-          <ConnectionStatus connectedLabel="DEJA.js" disconnectedLabel="DEJA.js" :connected="conn.dejaConnected" />
-          <ConnectionStatus connectedLabel="MQTT" disconnectedLabel="MQTT" :connected="conn.mqttConnected" />
+          <ConnectionStatus connectedLabel="DCC-EX" disconnectedLabel="DCC-EX" :connected="dccExConnected" />
+          <ConnectionStatus connectedLabel="DEJA.js" disconnectedLabel="DEJA.js" :connected="isDejaJS" />
+          <ConnectionStatus connectedLabel="MQTT" disconnectedLabel="MQTT" :connected="mqttConnected" />
           <ConnectionStatus :connectedLabel="conn.layoutId?.toString()" disconnectedLabel="Layout" :connected="!!conn.layoutId" />
           <tttButton variant="information" size="sm" @click="handleRefreshClick">Refresh</tttButton>
       </div>   

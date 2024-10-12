@@ -6,7 +6,7 @@
   import { useCurrentUser } from 'vuefire'
   import HeaderView from '@/views/HeaderView.vue'
   import FooterView from '@/views/FooterView.vue'
-  import DEJAConnect from '@/core/DEJAConnect.component.vue'
+  import DejaJsConnect from '@/core/DejaJsConnect.component.vue'
   import DejaCloudConnect from '@/deja-cloud/DejaCloudConnect.vue'
   
   const user = useCurrentUser()
@@ -17,12 +17,12 @@
 
 <template>
   <template v-if="isDejaJS && layoutId">
-    <DEJAConnect />
+    <DejaJsConnect />
   </template>
-  <template v-if="isDejaServer && layoutId">
+  <template v-if="user && layoutId">
     <DejaCloudConnect />
   </template>
-  <main class="flex flex-col h-screen max-w-screen-md mx-auto">
+  <main class="flex flex-col h-screen mx-auto">
     <HeaderView />
     <main class="flex-grow flex mb-16 min-h-0">
       <RouterView />

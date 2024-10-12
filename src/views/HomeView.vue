@@ -11,14 +11,13 @@
   import LayoutChip from '@/core/LayoutChip.vue'
   import ConnectionChip from '@/core/ConnectionChip.vue'
   import { useConnectionStore } from '@/connections/connectionStore'
-  import { useDcc } from '@/api/dccApi'
 
   const user = useCurrentUser()
   const { 
-    dejaConnected, 
-    isEmulated, 
-    serialConnected, 
-    cloudConnected, 
+    isDejaJS,
+    isDejaServer,
+    isSerial,
+    isEmulated
   } = storeToRefs(useConnectionStore())
 
   const openThrottle = async (address: number) => {
@@ -28,7 +27,7 @@
 </script>
 <template>
   <main class="flex flex-col p-8 w-full viaduct-background bg-opacity-50 bg-fixed overflow-auto">
-    <template v-if="dejaConnected || isEmulated || serialConnected || cloudConnected">
+    <template v-if="isDejaJS || isEmulated || isSerial || isDejaServer">
       <header class="flex justify-between items-center">
         <h2 class="text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600 my-4">
             Welcome to DEJA Throttle
@@ -44,7 +43,7 @@
         Your<br>
         <strong class="text-7xl uppercase">Loco</strong>
       </h2>
-      <template v-if="cloudConnected">
+      <template v-if="!!user">
         <DejaCloudRoster @selected="openThrottle" />
       </template>
       <template v-else>

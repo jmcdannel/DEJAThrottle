@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import { storeToRefs } from 'pinia'
-  import { useConnectionStore } from '@/connections/connectionStore.jsx'
+  import { useCurrentUser } from 'vuefire'
   import DejaThrottleBottomNav from '@/deja-cloud/DejaThrottleBottomNav.vue'
   import { 
     IoIosCog,
@@ -8,11 +7,11 @@
   import { AiFillControl } from "vue3-icons/ai";
 
   
-  const { cloudConnected } = storeToRefs(useConnectionStore())
+  const user = useCurrentUser()
 </script>
 <template>
   <footer class="relative">
-    <div class="btm-nav max-w-screen-md mx-auto">
+    <div class="btm-nav mx-auto">
       <router-link
         :to="`/`"
         custom
@@ -22,7 +21,7 @@
           <AiFillControl  class="w-6 h-6" />
         </button>
       </router-link>
-      <DejaThrottleBottomNav v-if="cloudConnected" />
+      <DejaThrottleBottomNav v-if="!!user" />
       <router-link
         :to="`/connect`"
         custom

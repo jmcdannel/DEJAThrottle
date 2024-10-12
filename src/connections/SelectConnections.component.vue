@@ -9,6 +9,7 @@
     BsUsbSymbol,
     BsCloud,
     BsCloudFill,
+    BsDatabaseGear,
     BsCpu,
     BsUsbPlug,
     BsUsbPlugFill,
@@ -19,6 +20,8 @@
   import { useConnectionStore } from '@/connections/connectionStore'
   import StatusMenuItem from '@/core/StatusMenu/StatusMenuItem.component.vue'
   import DejaSignout from '@/deja-cloud/DejaSignout.vue'
+  import DejaUser from '@/deja-cloud/DejaUser.vue'
+  import LayoutChip from '@/core/LayoutChip.vue'
   import useSerial from '@/api/serialApi'
   import router from '@/router' 
  
@@ -91,22 +94,16 @@
         <strong class="text-8xl font-extralight uppercase">Layout</strong>
       </h2>
 
-      <Transition name="slide-out" mode="out-in">
       <div class="stats stats-vertical w-full">
         <StatusMenuItem 
-          :icon="BsCloud" 
+          :icon="BsCloudFill" 
           :is-connected="(!!user)"
           item-label="DEJA Cloud" 
           page="deja-cloud"
+          class="bg-gradient-to-r from-cyan-800 to-violet-800"
           @disconnect="handleDisconnect()">    
           <template v-if="(!!user)" v-slot:desc>
-            <h3 class="pt-2 text-transparent text-xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">
-              <VaAvatar :size="24" :src="user?.photoURL" />
-              {{ user?.displayName }}
-            </h3>
-            <!-- <p class="py-1">
-              Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
-            </p> -->
+            <DejaUser />
           </template>
           <template v-slot:actions>
             <DejaSignout v-if="(!!user)" />
@@ -118,8 +115,11 @@
             </template>
           </template>
         </StatusMenuItem>
+      </div>
+      <div class="divider"></div>
+      <div class="stats stats-vertical w-full">
         <StatusMenuItem 
-          :icon="BsCloud" 
+          :icon="BsDatabaseGear" 
           :is-connected="(isDejaServer)"
           item-label="DEJA Server" 
           @connect="handleDejaServer()"
@@ -132,7 +132,7 @@
           item-label="DEJA.js" 
           page="dejajs"
           @disconnect="handleDisconnect()">    
-          {{ isDejaJS ? 'Connected' : '' }}
+          <LayoutChip v-if="isDejaJS" @click="$router.push({ name: 'dejajs' })" />
           <template v-slot:desc>
             <!-- <p class="py-1">
               Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
@@ -166,7 +166,7 @@
           </template>
         </StatusMenuItem>
       </div>
-    </Transition> 
+      
     </main>
 </template>
 

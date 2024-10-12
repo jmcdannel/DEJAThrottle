@@ -16,7 +16,7 @@ export const useConnectionStore = defineStore('connections', {
   }),
   actions: {
     connect(connType: string, layoutId?: string) {
-      this.disconnect()
+      this.resetConnections()
       switch (connType) {
         case 'dejaJS':
           this.isDejaJS = true
@@ -52,10 +52,7 @@ export const useConnectionStore = defineStore('connections', {
       this.mqttConnected = false
       this.dccExConnected = false
 
-      this.isEmulated = false
-      this.isDejaJS = false
-      this.isDejaServer = false
-      this.isSerial = false
+      this.resetConnections()
 
       this.layoutId = null
       this.ports = []
@@ -65,6 +62,12 @@ export const useConnectionStore = defineStore('connections', {
       this.dejaConnected = false // depracate
       this.cloudConnected = false // depracate
       this.serialConnected = false // depracate
+    },
+    resetConnections() {
+      this.isEmulated = false
+      this.isDejaJS = false
+      this.isDejaServer = false
+      this.isSerial = false
     }
   }
 })
