@@ -1,25 +1,57 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
   import { storeToRefs } from 'pinia'
   import { RouterView } from 'vue-router'
-  import { useConnectionStore } from '@/connections/connectionStore'
+  import { getAuth, onAuthStateChanged } from 'firebase/auth'
   import { useCurrentUser } from 'vuefire'
+  import { useConnectionStore } from '@/connections/connectionStore'
+  import { useDejaJs } from '@/api/useDejaJs'
+  import { db,firebaseApp } from '@/firebase'
   import HeaderView from '@/views/HeaderView.vue'
   import FooterView from '@/views/FooterView.vue'
   import DejaJsConnect from '@/core/DejaJsConnect.component.vue'
   import DejaCloudConnect from '@/deja-cloud/DejaCloudConnect.vue'
   
   const user = useCurrentUser()
+  const dejaJsApi = useDejaJs()
   const connectionStore = useConnectionStore()
-  const { layoutId, isDejaJS, isDejaServer } = storeToRefs(connectionStore)
+  const { layoutId, isDejaJS, isDejaServer, mqttConnected, connectionType } = storeToRefs(connectionStore)
   
+  onMounted(async () => {
+    const auth = getAuth(firebaseApp)
+    console.log('App.vue onMounted', auth)
+    onAuthStateChanged(auth, async function(user) {
+      if (connectionType.value === 'dejaJS') {
+        if (user) {
+          // User is signed in.
+          console.log('User is signed in.', auth)
+          await dejaJsApi.connectDejaCloud()
+        } else {
+          // No user is signed in.
+          console.log('No user is signed in.', auth)
+          await dejaJsApi.connectMqtt()
+        }
+      }
+    })
+    // if (layoutId.value) {
+    //   console.log('connecting from App.vue', user.value, user?.value?.email, layoutId?.value, connectionType.value)
+    //   if (connectionType.value === 'dejaJS') {
+    //     await dejaJsApi.connect()
+    //   }
+    // }
+  })
+
+  watch(layoutId.value, (newVal:string, oldVal:string) => {
+    console.log('layoutId changed', newVal, oldVal, connectionType.value)
+  })
+
 </script>
 
 <template>
-  <template v-if="isDejaJS && layoutId">
-    <DejaJsConnect />
+  <template v-if="layoutId && connectionType === 'dejaJS'">
+    <!-- <DejaJsConnect /> -->
   </template>
-  <template v-if="user && layoutId">
+  <template v-if="user && layoutId && (isDejaJS || isDejaServer)">
     <DejaCloudConnect />
   </template>
   <main class="flex flex-col h-screen mx-auto">

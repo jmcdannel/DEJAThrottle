@@ -1,12 +1,10 @@
 import { storeToRefs } from 'pinia'
-import { useSerial } from '@/api/serialApi.js'
+import { useSerial } from '@/api/serialApi'
 import { useDejaJs } from '@/api/useDejaJs'
-import { useConnectionStore } from '@/connections/connectionStore.jsx'
-import { useCollection, useCurrentUser } from 'vuefire'
-import { useDejaCloud } from '@/deja-cloud/useDejaCloud.js'
+import { useConnectionStore } from '@/connections/connectionStore'
+import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
 
 export function useDcc() {
-  const user = useCurrentUser()
   const connStore = useConnectionStore()
   const serialApi = useSerial()
   const dejaJsApi = useDejaJs()
@@ -82,14 +80,9 @@ export function useDcc() {
           '[dejaJsApi] send',
           `@ttt/dcc/${layoutId.value}`,
           action,
-          payload,
-          user?.value?.displayName
+          payload
         )
         dejaJsApi.send({ action, payload })
-        // mqttHook.publish(
-        //   `@ttt/dcc/${layoutId.value}`,
-        //   JSON.stringify({ action, payload })
-        // )
       } else if (isDejaServer.value) {
         console.log(
           '[dejaCloud] send',

@@ -1,13 +1,13 @@
-import { computed } from "vue"
-import { storeToRefs } from "pinia"
-import { collection, doc } from "firebase/firestore"
-import { useDocument } from "vuefire"
-import { db } from "@/firebase"
-import useDcc from "@/api/dccApi"
-import type { ConsistLoco } from "./types"
-import { useDejaCloud } from "@/deja-cloud/useDejaCloud"
-import { useConnectionStore } from "@/connections/connectionStore"
-import { useThrottleStore } from "@/throttle/throttleStore"
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
+import { collection, doc } from 'firebase/firestore'
+import { useDocument } from 'vuefire'
+import { db } from '@/firebase'
+import useDcc from '@/api/dccApi'
+import type { ConsistLoco } from './types'
+import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
+import { useConnectionStore } from '@/connections/connectionStore'
+import { useThrottleStore } from '@/throttle/throttleStore'
 
 const SWITCH_DIR_DELAY = 1000 // delay in ms to switch direction - occurs when slider goes from positive to negative value - which an occur quickly
 
@@ -16,31 +16,7 @@ export const useThrottle = () => {
   const dejaCloud = useDejaCloud()
   const connStore = useConnectionStore()
   const throttleStore = useThrottleStore()
-  const { layoutId, cloudConnected } = storeToRefs(connStore)
-
-  // async function acquireThrottle(address: number) {
-  //   console.log("useThrottle acquireThrottle", address)
-  //   try {
-  //     const throttle = cloudConnected.value
-  //       ? computed(() => dejaCloud.acquireThrottle(address))
-  //       : throttleStore.acquireThrottle(address)
-  //     return throttle
-  //   } catch (e) {
-  //     console.error("Error acquiring throttle:", e)
-  //   }
-  // }
-
-  // async function releaseThrottle(address: number) {
-  //   try {
-  //     if (cloudConnected.value) {
-  //       await dejaCloud.releaseThrottle(address)
-  //     } else {
-  //       throttleStore.releaseThrottle(address)
-  //     }
-  //   } catch (e) {
-  //     console.error("Error releasing throttle:", e)
-  //   }
-  // }
+  const { layoutId } = storeToRefs(connStore)
 
   async function updateSpeed(
     address: number,

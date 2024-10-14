@@ -91,6 +91,6 @@
       <p class="px-4 text-xs text-cyan-200" v-if="layout">
         {{layout.dccEx.version}}
       </p>
-      <!-- <pre>{{ layout }}</pre> -->
+      <pre>{{ layout }}</pre>
     </template>
 </template>

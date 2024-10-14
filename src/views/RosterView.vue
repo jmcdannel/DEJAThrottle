@@ -1,12 +1,10 @@
 <script setup lang="ts">
-  import { storeToRefs } from 'pinia'
-
+  import { useCurrentUser } from 'vuefire'
   import Roster from '@/core/Roster.vue'
   import DejaCloudRoster from '@/deja-cloud/DejaCloudRoster.vue'
-  import { useConnectionStore } from '@/connections/connectionStore'
   import router from '@/router';
   
-  const { cloudConnected } = storeToRefs(useConnectionStore())
+  const user = useCurrentUser()
   
   const openThrottle = async (address: number) => {
     router.push({ name: 'cloud-throttle', params: { address } })
@@ -19,7 +17,7 @@
     Your<br>
     <strong class="text-7xl uppercase">Loco</strong>
   </h2>
-  <template v-if="cloudConnected">
+  <template v-if="user">
     <DejaCloudRoster @selected="openThrottle" />
   </template>
   <template v-else>

@@ -9,14 +9,14 @@ export const useConnectionStore = defineStore('connections', {
     isDejaServer: false,
     isEmulated: false,
     layoutId: localStorage.getItem('@DEJA/layoutId') || null,
+    connectionType: localStorage.getItem('@DEJA/conn') || null,
     ports: [],
-    dejaConnected: false, // depracate
-    cloudConnected: false, // depracate
-    serialConnected: false, // depracate
   }),
   actions: {
     connect(connType: string, layoutId?: string) {
       this.resetConnections()
+      this.connectionType = connType
+      localStorage.setItem('@DEJA/conn', connType)
       switch (connType) {
         case 'dejaJS':
           this.isDejaJS = true
@@ -58,16 +58,15 @@ export const useConnectionStore = defineStore('connections', {
       this.ports = []
 
       localStorage.removeItem('@DEJA/layoutId')
-
-      this.dejaConnected = false // depracate
-      this.cloudConnected = false // depracate
-      this.serialConnected = false // depracate
+      localStorage.removeItem('@DEJA/conn')
     },
     resetConnections() {
       this.isEmulated = false
       this.isDejaJS = false
       this.isDejaServer = false
       this.isSerial = false
+      localStorage.removeItem('@DEJA/conn')
+      this.connectionType = null
     }
   }
 })

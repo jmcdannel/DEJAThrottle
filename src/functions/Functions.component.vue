@@ -25,6 +25,11 @@
   })
   const emit = defineEmits(['saveLoco'])
 
+  defineExpose({
+    openAll: () => listRef?.value?.showModal(),
+    openSettings: () => settingsRef?.value?.showModal()
+  })
+
   const { updateFunctions } = useDejaCloud()
   const { layoutId } = storeToRefs(useConnectionStore())
   const settingsRef = ref<HTMLDialogElement | null>(null)
@@ -60,15 +65,15 @@
     const isLastRow = (availableFunctions.value.length + locoFunctions.length - idx <= 2)
     // console.log('getRoundedClasses', idx, idx % 3, isLastRow, availableFunctions.value.length, locoFunctions.length)
     if (idx === 0) {
-      return 'rounded-r-none rounded-b-none' // top left
+      return 'md:rounded-r-none md:rounded-b-none' // top left
     } else if (idx === 2) {
-      return 'rounded-b-none rounded-l-none' // top right
+      return 'md:rounded-b-none md:rounded-l-none' // top right
     } else if (isLastRow && idx % 3 === 0 ) {
-      return 'rounded-t-none rounded-r-none' // bottom left
+      return 'md:rounded-t-none md:rounded-r-none' // bottom left
     } else if (isLastRow && idx % 3 === 2) {
-      return 'rounded-t-none rounded-l-none' // bottom right
+      return 'md:rounded-t-none md:rounded-l-none' // bottom right
     } else {
-      return 'rounded-none'
+      return 'md:rounded-none'
     }
   }
 
@@ -86,11 +91,11 @@
     <section class="hidden sm:block">
       <!-- <pre>{{ functions }}</pre> -->
       <ul class="flex flex-wrap justify-center mx-4 items-center">
-        <li v-for="(locoFunc, locoIdx) in loco.functions" :key="locoFunc.id" class="basis-1/3">
+        <li v-for="(locoFunc, locoIdx) in loco.functions" :key="locoFunc.id" class="basis-1/2 md:basis-1/3">
           <!-- <pre>{{ locoFunc }}</pre> -->
           <Function :func="locoFunc" :address="44" class="w-full" :class="getRoundedClasses(locoIdx)" />
         </li>
-        <li v-for="(locoFunc, locoIdx) in availableFunctions" :key="locoFunc.id" class="basis-1/3">
+        <li v-for="(locoFunc, locoIdx) in availableFunctions" :key="locoFunc.id" class="basis-1/2 md:basis-1/3">
           <Function :func="locoFunc" :address="44" class="w-full" :class="getRoundedClasses(locoIdx + loco.functions.length)" />
         </li>
         <li class="basis-1/3">
@@ -108,11 +113,10 @@
       ref="listRef"
       :loco="loco"
     />
-    <button @click="openSettings" class="sm:hidden rounded-lg p-4 bg-gradient-to-br from-indigo-500 to-blue-800"><RiTrainWifiFill class="w-8 h-8" /></button>
+    <!-- <button @click="openAllFunctions" class="sm:hidden rounded-lg p-4 bg-gradient-to-br from-indigo-500 to-blue-800"><RiTrainWifiFill class="w-8 h-8" /></button> -->
     <FunctionSettings 
       ref="settingsRef" 
       :loco="loco" 
-      :default-functions="defaultFunctions" 
       @save-functions="handleUpdateFunctions" 
     />
   </template>

@@ -9,19 +9,19 @@
   import type { Loco, LocoFunction } from '@/throttle/types'
   import { useFunctionIcon } from '@/functions/useFunctionIcon'
   import FunctionIcon from './FunctionIcon.component.vue'
+  import { defaultFunctions } from '@/functions/useFunctions'
 
   const functionIcons = useFunctionIcon()
   const icons = functionIcons.getAllIcons()
 
   const props = defineProps<{
-    defaultFunctions: Array<LocoFunction>,
     loco: Loco | null,
   }>()
 
   const emit = defineEmits(['saveFunctions'])
   
   const menuRefs = ref<HTMLElement[]>([])
-  const _functions = ref(props.defaultFunctions.map(f => ({...f, ...props.loco?.functions?.find(lf => lf.id === f.id)})))
+  const _functions = ref(defaultFunctions.map(f => ({...f, ...props.loco?.functions?.find(lf => lf.id === f.id)})))
   const modalRef = ref<HTMLDialogElement | null>(null)
 
   function handleLabelBlur() {
@@ -51,7 +51,7 @@
     showModal: () => modalRef?.value?.showModal()
   })
 
-  console.log('Functions', _functions, props.defaultFunctions, props.loco)
+  console.log('Functions', _functions, defaultFunctions, props.loco)
 
 </script>
 <template>
@@ -98,24 +98,7 @@
               </li>
             </ul>
           </details>
-     
-          
         </section>
-        <!-- <button class="btn btn-outline mx-1 btn-primary btn-sm py-2">
-          <span class="">{{ cloco.address }}</span>
-        </button> 
-        <section class="rounded-2xl bg-zinc-800 text-xs flex justify-center pr-2 pl-3 items-center">
-          <label class="block py-2 text-cyan-400 mr-2">Trim: <strong>{{  cloco.trim }}</strong></label>
-          <button class="btn btn-circle btn-info btn-xs" @click="$emit('adjustTrim', cloco, -1)">
-            <FaMinus alt="clear layout" class="h-3 w-3" />
-          </button>
-          <button class="btn btn-circle btn-info btn-xs" @click="$emit('adjustTrim', cloco, 1)">
-            <FaPlus alt="clear layout" class="h-3 w-3" />
-          </button>
-        </section> -->
-        <!-- <button class="mx-2 btn btn-sm btn-square">
-          <FaTimesCircle alt="clear layout" class="h-3 w-3" @click="$emit('removeLoco', cloco)" />
-        </button> -->
       </li>
     </ul>
   </Modal>

@@ -7,9 +7,10 @@
   import dayjs from 'dayjs'
   import relativeTime from 'dayjs/plugin/relativeTime'
   import { useConnectionStore } from '@/connections/connectionStore'
-  import { useDejaCloudStore } from '@/deja-cloud/dejaCloudSore'
+  import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
   import { useDcc } from '@/api/dccApi'
+import { cp } from 'fs'
 
   const user = useCurrentUser()
   const conn = useConnectionStore()
@@ -19,7 +20,7 @@
 
   dayjs.extend(relativeTime)
 
-  const { layoutId, cloudConnected, dccExConnected } = storeToRefs(conn)
+  const { layoutId, dccExConnected } = storeToRefs(conn)
 
   const layoutDoc = computed(() => layoutId.value 
     ? doc(db, "layouts", layoutId.value) 
@@ -29,6 +30,8 @@
 
 
   const lastUpdated = computed(() => layout?.value?.dccEx.timestamp.seconds)
+  const lastConnected = computed(() => layout?.value?.dccEx.lastConnected?.seconds)
+  const client = computed(() => layout?.value?.dccEx.client)
 
   watch(lastUpdated, (newVal, oldVal) => {
     const now = dayjs()
@@ -39,11 +42,30 @@
     }
   })
 
+  watch(lastConnected, (newVal, oldVal) => {
+    console.log('lastConnected', newVal, oldVal)
+    if (newVal) {
+      const now = dayjs()
+      const connected = dayjs.unix(newVal)
+      console.log('layout lastConnected', now.diff(connected, 'minute'), now.diff(connected, 'second'), now.diff(connected))
+      if (!dccExConnected.value && now.diff(connected, 'minute') < 2) {
+        conn.connectDccEx()
+      }
+    }
+  })
+
+  watch(client, (newVal, oldVal) => {
+    console.log('client changed', newVal, oldVal)
+    if (newVal) {
+      conn.connectionType = newVal
+    }
+  })
+
   onMounted(async () => {
     try {
       if (layoutId.value) {
-        console.log('CONNECTING TO DEJA CLOUD', !!user, user?.value?.email, layoutId?.value, cloudConnected.value)
-        conn.connect('cloud', layoutId.value)
+        console.log('CONNECTING TO DEJA CLOUD', !!user.value, user?.value?.email, layoutId?.value)
+        // conn.connect('cloud', layoutId.value)
         await dejaCloudStore.init(layoutId.value)
         dcc.send('getStatus', { layoutId: layoutId.value })
       }

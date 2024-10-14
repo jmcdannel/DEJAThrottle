@@ -62,7 +62,7 @@
         trim: 0
       }
       const newConsist = [...(props.loco.consist || []), newLoco]
-      console.log('newConsist', newConsist)
+      console.log('newConsist', newConsist, props.loco, props.loco?.id)
       updateConsist(props.loco.id, newConsist)
     }
   }

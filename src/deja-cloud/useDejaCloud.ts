@@ -15,10 +15,17 @@ import {
 import { storeToRefs } from 'pinia'
 import { useDocument, useCollection, firestoreDefaultConverter } from 'vuefire'
 import { db } from '@/firebase'
-import type { Loco, LocoFunction, Throttle } from '@/throttle/types'
+import type {
+  Loco,
+  LocoFunction,
+  Throttle,
+  ConsistLoco,
+} from '@/throttle/types'
 import { useConnectionStore } from '@/connections/connectionStore'
+import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
 
 export function useDejaCloud() {
+  const dejaCloudStore = useDejaCloudStore()
   const connStore = useConnectionStore()
   const { layoutId } = storeToRefs(connStore)
 
@@ -35,8 +42,7 @@ export function useDejaCloud() {
 
   function getLayout() {
     const layoutDoc = layoutId.value ? doc(db, 'layouts', layoutId.value) : null
-    const layout = useDocument(layoutDoc)
-    return layout
+    return useDocument(layoutDoc)
   }
 
   async function updateFunctions(id: string, functions: LocoFunction[]) {
@@ -49,14 +55,10 @@ export function useDejaCloud() {
     }
   }
 
-  async function updateConsist(locoId, consist) {
-    console.log('dejaCloud updateConsist', locoId, consist)
+  async function updateConsist(id: string, consist: ConsistLoco[]) {
+    console.log('dejaCloud updateConsist', id, consist)
     try {
-      const locoDoc = doc(
-        db,
-        `layouts/${layoutId.value}/locos`,
-        locoId.toString()
-      )
+      const locoDoc = doc(db, `layouts/${layoutId.value}/locos`, id)
       await setDoc(locoDoc, { consist }, { merge: true })
     } catch (e) {
       console.error('Error updating consist: ', e)
@@ -79,6 +81,16 @@ export function useDejaCloud() {
       return newLocoDoc.id
     } catch (e) {
       console.error('Error adding throttle: ', e)
+    }
+  }
+
+  async function getLocoByAddress(address: number) {
+    try {
+      const id = await getLocoDbId(address)
+      const loco = await getLocoById(id)
+      return loco
+    } catch (e) {
+      console.error('Error getting loco: ', e)
     }
   }
 
@@ -114,7 +126,7 @@ export function useDejaCloud() {
 
     if (docSnap.exists()) {
       console.log('Document data:', docSnap.data(), docSnap.id, docSnap.ref)
-      return docSnap.data()
+      return { ...docSnap.data(), id: docSnap.id }
     } else {
       // docSnap.data() will be undefined in this case
       console.error('No such document!')
@@ -147,14 +159,7 @@ export function useDejaCloud() {
           db,
           `layouts/${layoutId.value}/throttles`,
           address.toString()
-        ).withConverter<Throttle>({
-          fromFirestore: (snapshot: any) => {
-            const data = firestoreDefaultConverter.fromFirestore(snapshot)
-            if (!data) return null
-            return data
-          },
-          toFirestore: firestoreDefaultConverter.toFirestore,
-        })
+        )
         fetchDoc(docRef)
         return docRef
       })
@@ -173,6 +178,25 @@ export function useDejaCloud() {
       )
     } catch (e) {
       console.error('Error adding throttle: ', e)
+    }
+  }
+
+  function getThrottles() {
+    try {
+      // return dejaCloudStore.throttles || null
+      const throttlesCollection = layoutId.value
+        ? collection(db, `layouts/${layoutId.value}/throttles`)
+        : null
+      const throttles = useCollection(throttlesCollection)
+      console.log(
+        'getThrottles',
+        throttlesCollection,
+        throttles,
+        layoutId.value
+      )
+      return throttles
+    } catch (e) {
+      console.error('Error getting throttles')
     }
   }
 
@@ -224,13 +248,15 @@ export function useDejaCloud() {
     send,
     acquireThrottle,
     releaseThrottle,
-    createLoco,
     getLayout,
-    getLoco,
-    updateConsist,
+    createLoco,
     getLocos,
-    updateFunctions,
+    getLoco,
     getLocoById,
     getLocoDbId,
+    getLocoByAddress,
+    updateConsist,
+    updateFunctions,
+    getThrottles,
   }
 }

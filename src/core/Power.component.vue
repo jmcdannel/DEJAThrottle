@@ -1,7 +1,7 @@
 <script setup>
   import { ref } from 'vue'
   import { storeToRefs } from 'pinia'
-import { useCurrentUser } from 'vuefire'
+  import { useCurrentUser } from 'vuefire'
   import { useConnectionStore } from '@/connections/connectionStore'
   import useDcc from '@/api/dccApi'
 

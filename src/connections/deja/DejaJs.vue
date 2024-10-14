@@ -7,8 +7,10 @@
   import { useDejaJs } from '@/api/useDejaJs'
   import router from '@/router'
   import tttButton from '@/shared/ui/tttButton.component.vue'
+  import DejaDCCEX from '@/deja-cloud/DejaDCCEX.vue'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
   import closeIconSvg from '@/assets/icons/close.svg'
+  import DejaPortList from '@/deja-cloud/DejaPortList.vue'
   
   const user = useCurrentUser()
   const dccApi = useDcc()
@@ -22,10 +24,10 @@
   const layout = ref(null)
 
   onMounted(async () => {
-    if (layoutId.value) {
-      console.log('connecting from DejaJs')
-      dejaJsApi.connectMqtt()
-    }
+    // if (layoutId.value) {
+    //   console.log('connecting from DejaJs', user.value)
+    //   dejaJsApi.connect()
+    // }
     // dccApi.send('listPorts', { })
   });
 
@@ -38,7 +40,7 @@
       e.preventDefault()
       dccStatus.value = 'pending'
       const serial = e.target.value
-      dccApi.send('connect', { serial })      
+      dccApi.send('connect', { serial })
     } catch (err) {
       console.error(err)
     }
@@ -51,7 +53,7 @@
     console.log('LayoutConnect.handleGoClick', layout.value)
     layoutId.value = layout.value
     !!layout.value && savelayout(layout.value)
-    await dejaJsApi.connectMqtt()
+    await dejaJsApi.connect()
     
   }
   const handleDisconnectClick = () => {
@@ -75,7 +77,7 @@
     const newLayoutId = e.target.value
     layoutId.value = newLayoutId    
     !!newLayoutId && savelayout(newLayoutId)
-    await dejaJsApi.connectMqtt()
+    await dejaJsApi.connect()
   }
 
   const clearLayout = (e:any) => {
@@ -83,6 +85,15 @@
     layoutId.value = null
     ports.value = []
     localStorage.removeItem('@DEJA/layoutId')
+  }
+
+  const handleMqtt = async () => {
+    dejaJsApi.connectMqtt()
+  }
+
+  const handleCloud = async () => {
+    console.log('handleCloud', user.value)
+    dejaJsApi.connectDejaCloud()
   }
 
 </script>
@@ -120,22 +131,23 @@
           </span>
         </h2>
         <div className="divider"></div>
-        <div v-if="conn.dejaConnected" class="text-green-500 text-center flex items-center justify-center">
+        <div v-if="conn.isDejaJS && conn.dccExConnected" class="text-green-500 text-center flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-32 h-32 mr-1">
             <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd" />
           </svg>
         </div>
-        <template v-else>
-          <div v-if="!ports?.length">
-            <span class=" ">Loading</span>
-          </div>
-          <ul v-else>
-            <li v-for="port in ports" :key="port">
-              <button class="btn btn-sm btn-outline w-full border-teal-500" :value="port" @click="handlePortClick">{{ port }}</button>
-              <div className="divider"></div> 
-            </li>
-          </ul>
+        <template v-else-if="user && layoutId">
+          <DejaPortList @connect="handlePortClick" />
         </template>
+        <div v-else-if="!ports?.length">
+          <span class=" ">Loading</span>
+        </div>
+        <ul v-else>
+          <li v-for="port in ports" :key="port">
+            <button class="btn btn-sm btn-outline w-full border-teal-500" :value="port" @click="handlePortClick">{{ port }}</button>
+            <div className="divider"></div> 
+          </li>
+        </ul>
       </template>
       <div v-else class="p-2 flex flex-col items-center justify-center">
         <div>
@@ -148,6 +160,8 @@
           </li>
         </ul>
       </div>
+      <pre>{{ conn }}</pre>
+
       <div class="flex-grow flex justify-between items-end">
         <tttButton variant="warning" size="lg" @click="handleCancelClick">Cancel</tttButton>
         <tttButton v-if="layoutId" variant="error" size="lg" @click="handleDisconnectClick">Disconnect</tttButton>

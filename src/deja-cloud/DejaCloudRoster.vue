@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useCollection } from 'vuefire'
 import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
-import { useDejaCloudStore } from '@/deja-cloud/dejaCloudSore'
+import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
 import { VaAvatar } from 'vuestic-ui';
 
 defineProps({

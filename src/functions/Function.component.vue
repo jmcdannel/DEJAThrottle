@@ -35,7 +35,7 @@
 </script>
 <template>
   <button v-if="func" @click="cabFuction()"
-    class="relative btn btn-md bg-gradient-to-br from-cyan-600 to-indigo-600">
+    class="relative btn btn-md min-w-16 bg-gradient-to-br from-cyan-600 to-indigo-600">
     <FunctionIcon v-if="func?.icon" :icon="func?.icon" class="w-4 h-4 md:w-6 md:h-6" />
     <FunctionIcon v-else-if="showDefaultIcon" icon="track" class="w-4 h-4 md:w-6 md:h-6" />
     <template v-else>

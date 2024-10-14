@@ -3,19 +3,22 @@
   import { storeToRefs } from 'pinia'
   import { debounce } from 'vue-debounce'
   import { computedAsync } from '@vueuse/core'
-  import { FaParking } from "vue3-icons/fa";
+  import { MdLocalParking } from "vue3-icons/md"
+  import { RiTrainWifiFill } from 'vue3-icons/ri'  
+  import { 
+    IoIosCog,
+  } from 'vue3-icons/io'
   import { getDocs, doc } from 'firebase/firestore'
   import ThrottleButtonControls from './ThrottleButtonControls.component.vue'
   import ThrottleSliderControls from './ThrottleSliderControls.component.vue'
   import CurrentSpeed from './CurrentSpeed.component.vue'
   import ThrottleHeader from './ThrottleHeader.component.vue'
+  import ThrottleLayout from './ThrottleLayout.vue'
   import Consist from '@/consist/Consist.component.vue'
   import Functions from '@/functions/Functions.component.vue'
   import type { Loco, LocoFunction, ConsistLoco, Throttle } from './types';
   import { useThrottle } from './useThrottle'
-  import { useDejaCloudStore } from '@/deja-cloud/dejaCloudSore'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
-  import { useConnectionStore } from '@/connections/connectionStore'
 
   const DEBOUNCE_DELAY = 100 // debounce speed changes by 100ms to prevent too many requests
   const SWITCH_DIR_DELAY = 1000 // delay in ms to switch direction - occurs when slider goes from positive to negative value - which an occur quickly
@@ -24,21 +27,25 @@
     throttle: {
       type: Object as PropType<Throttle>,
       required: true
+    },
+    loco: {
+      type: Object as PropType<Loco>,
+      required: false
     }
   })
 
   const emit = defineEmits(['release'])
 
   const { updateSpeed } = useThrottle()
-  const connStore = useConnectionStore()
-  const dejaCloudStore = useDejaCloudStore()
   const dejaCloud = useDejaCloud()
-  const { layoutId } = storeToRefs(connStore)
   // const { locoDocId } = storeToRefs(dejaCloudStore)
 
-  const locoDocId = computedAsync(async () => await dejaCloud.getLocoDbId(props.throttle.address), null)
-  const loco = computedAsync(async () => locoDocId.value ? await dejaCloud.getLocoById(locoDocId.value) : null, null)
+  // const locoDocId = computedAsync(async () => await dejaCloud.getLocoDbId(props.throttle.address), null)
+  // const loco = computedAsync(async () => locoDocId.value ? await dejaCloud.getLocoById(locoDocId.value) : null, null)
 
+  console.log('loco', props.loco)
+
+  const functionsCmp = ref(null)
   const currentSpeed = ref(props.throttle?.speed || 0)
 
   const setSpeed = debounce((val: number): void => { currentSpeed.value = val; }, `${DEBOUNCE_DELAY}ms`)
@@ -64,29 +71,48 @@
   async function sendLocoSpeed(newSpeed:number, oldSpeed:number) {
     console.log('sendLocoSpeed', { newSpeed, oldSpeed }, props.throttle?.address, props.throttle)
     updateSpeed(props.throttle?.address, newSpeed, oldSpeed)
-    
   }
 
+function openFunctions() {
+  functionsCmp.value && functionsCmp.value.openAll()
+}
+
+function openFunctionSettings() {
+  functionsCmp.value && functionsCmp.value.openSettings()
+}
+
   watch(currentSpeed, sendLocoSpeed)
+  
 </script>
 <template>
   <main class="card m-2 shadow-xl flex-grow overflow-auto relative bg-gradient-to-br from-violet-800 to-cyan-500 bg-gradient-border " v-if="throttle">
     <!-- <pre>locoDocId:{{locoDocId}}</pre>-->
     <!-- <pre>loco:{{loco.functions}}</pre>  -->
     <ThrottleHeader :address="throttle.address">
-      <aside class="flex items-center ">
-        <!-- <Consist v-if="locoDocId" :loco="locoDocId" /> -->
-        <button class="text-sky-500" @click="clearLoco">
-          <FaParking alt="clear layout" class="h-12 w-12" />
-        </button>
-      </aside>
+      <template v-slot:right>
+        <aside class="grid grid-flow-col gap-1 items-center space-1">
+          <Consist v-if="loco" :loco="loco" />
+          <ThrottleLayout />
+          <button class="btn btn-square btn-secondary" @click="clearLoco">
+            <MdLocalParking alt="clear layout" class="w-8 h-8 stroke-none" />
+          </button>
+          <button class="sm:hidden btn btn-square btn-secondary" @click="openFunctionSettings" >
+            <IoIosCog class="w-8 h-8 stroke-none" />
+          </button>
+          <button class="sm:hidden btn btn-square btn-secondary" @click="openFunctions" >
+            <RiTrainWifiFill class="w-8 h-8 stroke-none" />
+          </button>
+        </aside>
+      </template>
     </ThrottleHeader>
     <section class="throttle flex flex-row flex-grow overflow-auto">
-      <section class="pt-4 pb-8 px-1 text-center  flex-1">
+      <section class="pt-4 pb-8 px-1 text-center flex-1">
         <ThrottleSliderControls :speed="currentSpeed" @update:currentSpeed="setSliderSpeed" @stop="handleStop" />  
       </section>
-      <section v-if="loco" class="pt-4 flex flex-col items-center justify-between flex-1">
-        <Functions :loco="loco" />
+      <section v-if="loco" class="flex pt-4 flex-col items-center justify-between flex-0 sm:flex-1">
+        <Functions :loco="loco" ref="functionsCmp" />
+      </section>
+      <section class="pt-4 flex flex-col items-center justify-between flex-1">
         <CurrentSpeed :speed="currentSpeed" />
         <ThrottleButtonControls :speed="currentSpeed" @update:currentSpeed="adjustSpeed" @stop="handleStop" />
       </section>
