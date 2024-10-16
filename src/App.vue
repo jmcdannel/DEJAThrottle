@@ -23,7 +23,7 @@
     const auth = getAuth(firebaseApp)
     console.log('App.vue onMounted', auth)
     onAuthStateChanged(auth, async function(user) {
-      if (connectionType.value === 'dejaJS') {
+      // if (connectionType.value === 'dejaJS') {
         if (user) {
           // User is signed in.
           console.log('User is signed in.', auth)
@@ -34,7 +34,7 @@
           console.log('No user is signed in.', auth)
           await dejaJsApi.connectMqtt()
         }
-      }
+      // }
     })
     // if (layoutId.value) {
     //   console.log('connecting from App.vue', user.value, user?.value?.email, layoutId?.value, connectionType.value)
