@@ -65,7 +65,7 @@ import { cp } from 'fs'
       if (layoutId.value) {
         console.log('CONNECTING TO DEJA CLOUD', !!user.value, user?.value?.email, layoutId?.value)
         // conn.connect('cloud', layoutId.value)
-        // await dejaCloudStore.init(layoutId.value)
+        await dejaCloudStore.init(layoutId.value)
         dcc.send('getStatus', { layoutId: layoutId.value })
       }
     } catch (err) {

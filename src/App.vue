@@ -27,7 +27,7 @@
         if (user) {
           // User is signed in.
           console.log('User is signed in.', auth)
-          await dejaJsApi.connectDejaCloud()
+          layoutId.value && await dejaJsApi.connectDejaCloud()
           layoutId.value && await dejaCloudStore.init(layoutId.value)
         } else {
           // No user is signed in.
@@ -54,10 +54,10 @@
   <template v-if="layoutId && connectionType === 'dejaJS'">
     <!-- <DejaJsConnect /> -->
   </template>
-  <template v-if="user && layoutId && (isDejaJS || isDejaServer)">
+  <template v-if="user && layoutId">
     <DejaCloudConnect />
   </template>
-  <main class="flex flex-col h-screen mx-auto" v-if="!user || initialized">
+  <main class="flex flex-col h-screen mx-auto">
     <HeaderView />
     <main class="flex-grow flex mb-16 min-h-0">
       <RouterView />

@@ -16,11 +16,19 @@
   const user = useCurrentUser()
   const { createThrottle, acquireThrottle } = useDejaCloud()
   const { 
+    layoutId,
     isDejaJS,
     isDejaServer,
     isSerial,
     isEmulated
   } = storeToRefs(useConnectionStore())
+
+  console.log(
+    layoutId,
+    isDejaJS,
+    isDejaServer,
+    isSerial,
+    isEmulated)
 
   const openThrottle = async (address: number) => {
     console.log('openThrottle', address)
@@ -48,7 +56,7 @@
         Your<br>
         <strong class="text-7xl uppercase">Loco</strong>
       </h2>
-      <template v-if="!!user">
+      <template v-if="!!user && layoutId">
         <DejaCloudRoster @selected="openThrottle" />
       </template>
       <template v-else>

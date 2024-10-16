@@ -1,5 +1,7 @@
 <script setup lang="ts">
   import { useCurrentUser } from 'vuefire'
+  import { storeToRefs } from 'pinia'
+  import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
   import DejaThrottleBottomNav from '@/deja-cloud/DejaThrottleBottomNav.vue'
   import { 
     IoIosCog,
@@ -7,6 +9,8 @@
   import { AiFillControl } from "vue3-icons/ai";
 
   
+  const dejaCloudStore = useDejaCloudStore()
+  const { initialized } = storeToRefs(dejaCloudStore)
   const user = useCurrentUser()
 </script>
 <template>
@@ -21,7 +25,7 @@
           <AiFillControl  class="w-6 h-6" />
         </button>
       </router-link>
-      <DejaThrottleBottomNav v-if="!!user" />
+      <DejaThrottleBottomNav v-if="!!user && initialized" />
       <router-link
         :to="`/connect`"
         custom
