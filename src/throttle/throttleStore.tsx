@@ -17,11 +17,11 @@ export const useThrottleStore = defineStore('locos', {
   actions: {
     initialize: () => {
 
-      const dejaCloud = useDejaCloud()
+      // const dejaCloud = useDejaCloud()
 
-      const dejaCloudLocos = dejaCloud.getLocos()
+      // const dejaCloudLocos = dejaCloud.getLocos()
 
-      console.log('dejaCloudLocos', dejaCloudLocos)
+      // console.log('dejaCloudLocos', dejaCloudLocos)
 
     },
     setLocos(newLocos: Loco[]) {

@@ -13,11 +13,10 @@ defineProps({
 })
 
 const emit = defineEmits(['selected'])
-const dejaCloudStore = useDejaCloudStore()
-const { createLoco } = useDejaCloud()
+const { createLoco, getLocos } = useDejaCloud()
 const address = ref(null)
 const name = ref(null)
-const locos = useCollection(dejaCloudStore.locos)
+const locos = getLocos()
 
 async function handleAdd() {
   const newAddress = parseInt(address.value as unknown as string) 

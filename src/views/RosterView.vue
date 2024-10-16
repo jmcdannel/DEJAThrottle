@@ -2,12 +2,17 @@
   import { useCurrentUser } from 'vuefire'
   import Roster from '@/core/Roster.vue'
   import DejaCloudRoster from '@/deja-cloud/DejaCloudRoster.vue'
+  import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
   import router from '@/router';
   
+  const { acquireThrottle } = useDejaCloud()
   const user = useCurrentUser()
   
   const openThrottle = async (address: number) => {
-    router.push({ name: 'cloud-throttle', params: { address } })
+    console.log('openThrottle', address)
+    const throttle = await acquireThrottle(address)
+    console.log('openThrottle', throttle)
+    // router.push({ name: 'cloud-throttle', params: { address } })
   }
 </script>
 

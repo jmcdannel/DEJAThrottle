@@ -11,12 +11,14 @@
   import FooterView from '@/views/FooterView.vue'
   import DejaJsConnect from '@/core/DejaJsConnect.component.vue'
   import DejaCloudConnect from '@/deja-cloud/DejaCloudConnect.vue'
+  import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
   
   const user = useCurrentUser()
   const dejaJsApi = useDejaJs()
   const connectionStore = useConnectionStore()
+  const dejaCloudStore = useDejaCloudStore()
   const { layoutId, isDejaJS, isDejaServer, mqttConnected, connectionType } = storeToRefs(connectionStore)
-  
+  const { initialized } = storeToRefs(dejaCloudStore)
   onMounted(async () => {
     const auth = getAuth(firebaseApp)
     console.log('App.vue onMounted', auth)
@@ -26,6 +28,7 @@
           // User is signed in.
           console.log('User is signed in.', auth)
           await dejaJsApi.connectDejaCloud()
+          layoutId.value && await dejaCloudStore.init(layoutId.value)
         } else {
           // No user is signed in.
           console.log('No user is signed in.', auth)
@@ -54,7 +57,7 @@
   <template v-if="user && layoutId && (isDejaJS || isDejaServer)">
     <DejaCloudConnect />
   </template>
-  <main class="flex flex-col h-screen mx-auto">
+  <main class="flex flex-col h-screen mx-auto" v-if="!user || initialized">
     <HeaderView />
     <main class="flex-grow flex mb-16 min-h-0">
       <RouterView />

@@ -15,19 +15,19 @@
     </summary>    
     <ul class="menu dropdown-content bg-base-200 rounded-box">
       <li>
-        <a class="tooltip tooltip-left" data-tip="Array">
+        <button @click="$emit('change', 'Array')" class="tooltip tooltip-left" data-tip="Array">
           <MdViewArray class="h-5 w-5" />
-        </a>
+        </button>
       </li>
       <li>
-        <a class="tooltip tooltip-left" data-tip="Carousel">          
+        <button @click="$emit('change', 'Carousel')" class="tooltip tooltip-left" data-tip="Carousel">          
           <MdViewCarousel class="h-5 w-5" />
-        </a>
+        </button>
       </li>
       <li>
-        <a class="tooltip tooltip-left" data-tip="Split">          
+        <button @click="$emit('change', '2up')" class="tooltip tooltip-left" data-tip="Split">          
           <PiSquareSplitHorizontalFill class="h-5 w-5" />
-        </a>
+        </button>
       </li>
     </ul>
   </details>

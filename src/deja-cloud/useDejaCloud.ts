@@ -28,6 +28,8 @@ export function useDejaCloud() {
   const dejaCloudStore = useDejaCloudStore()
   const connStore = useConnectionStore()
   const { layoutId } = storeToRefs(connStore)
+  const { locos: storedLocos, throttles: storedThrottles } =
+    storeToRefs(dejaCloudStore)
 
   async function send({ action, payload }) {
     switch (action) {
@@ -73,10 +75,7 @@ export function useDejaCloud() {
         name,
         timestamp: serverTimestamp(),
       }
-      const newLocoDoc = await addDoc(
-        collection(db, `layouts/${layoutId.value}/locos`),
-        loco
-      )
+      const newLocoDoc = await addDoc(storedLocos.value, loco)
       console.log('loco written with ID: ', newLocoDoc)
       return newLocoDoc.id
     } catch (e) {
@@ -118,10 +117,26 @@ export function useDejaCloud() {
     return await querySnapshot.docs[0].id
   }
 
-  async function getLocoById(id: string) {
+  function getLocoById(id: string) {
     console.log('dejaCloud getLocoById', id, typeof id)
     // return useDocument(doc(db, `layouts/${layoutId.value}/locos`, id))
-    const docRef = doc(db, `layouts/${layoutId.value}/locos`, id)
+    // const docRef = doc(db, `layouts/${layoutId.value}/locos`, id)
+    // const result = await getDoc(docRef)
+    // return result
+
+    try {
+      // return dejaCloudStore.throttles || null
+      const locoDoc = layoutId.value
+        ? doc(db, `layouts/${layoutId.value}/locos`, id)
+        : null
+      const loco = useDocument(locoDoc)
+      return loco
+    } catch (e) {
+      console.error('Error getting throttles')
+    }
+  }
+
+  async function getDoc(docRef) {
     const docSnap = await getDoc(docRef)
 
     if (docSnap.exists()) {
@@ -134,16 +149,40 @@ export function useDejaCloud() {
   }
 
   function getLocos() {
-    const locosCollection = layoutId.value
-      ? collection(db, `layouts/${layoutId.value}/locos`)
-      : null
-    const locos = useCollection(locosCollection)
-    console.log('getLocos', locosCollection, locos, layoutId.value)
-    return locos
+    try {
+      // return dejaCloudStore.throttles || null
+      const locosCollection = layoutId.value ? storedLocos.value : null
+      const locos = useCollection(locosCollection)
+      console.log('getLocos', locosCollection, locos, layoutId.value)
+      return locos
+    } catch (e) {
+      console.error('Error getting locos')
+    }
   }
 
-  function acquireThrottle(address: number) {
+  async function createThrottle(address) {
+    console.log('dejaCloud createThrottle', address)
     try {
+      const data = {
+        address: parseInt(address),
+        speed: 0,
+        direction: false,
+        timestamp: serverTimestamp(),
+      }
+      const newThrottleDoc = await setDoc(
+        doc(db, `layouts/${layoutId.value}/throttles`, address.toString()),
+        data
+      )
+      console.log('throttle written with ID: ', newThrottleDoc)
+      return newThrottleDoc
+    } catch (e) {
+      console.error('Error adding throttle: ', e)
+    }
+  }
+
+  async function acquireThrottle(address) {
+    try {
+      console.log('dejaCloud acquireThrottle', address)
       const throttleSource = computed(() => {
         async function fetchDoc(docRef) {
           const data = {
@@ -163,8 +202,26 @@ export function useDejaCloud() {
         fetchDoc(docRef)
         return docRef
       })
-
       return useDocument<Throttle>(throttleSource)
+
+      // const docRef = doc(
+      //   db,
+      //   `layouts/${layoutId.value}/throttles`,
+      //   address.toString()
+      // )
+      // const result = await getDoc(docRef)
+      // return result
+
+      // try {
+      //   // return dejaCloudStore.throttles || null
+      //   const throttleDoc = layoutId.value
+      //     ? doc(db, `layouts/${layoutId.value}/throttles`, address.toString())
+      //     : null
+      //   const throttle = useDocument(throttleDoc)
+      //   return throttle
+      // } catch (e) {
+      //   console.error('Error getting throttles')
+      // }
     } catch (e) {
       console.error('Error adding throttle: ', e)
     }
@@ -184,9 +241,7 @@ export function useDejaCloud() {
   function getThrottles() {
     try {
       // return dejaCloudStore.throttles || null
-      const throttlesCollection = layoutId.value
-        ? collection(db, `layouts/${layoutId.value}/throttles`)
-        : null
+      const throttlesCollection = layoutId.value ? storedThrottles.value : null
       const throttles = useCollection(throttlesCollection)
       console.log(
         'getThrottles',
@@ -247,6 +302,7 @@ export function useDejaCloud() {
   return {
     send,
     acquireThrottle,
+    createThrottle,
     releaseThrottle,
     getLayout,
     createLoco,

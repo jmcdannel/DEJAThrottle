@@ -11,8 +11,10 @@
   import LayoutChip from '@/core/LayoutChip.vue'
   import ConnectionChip from '@/core/ConnectionChip.vue'
   import { useConnectionStore } from '@/connections/connectionStore'
+  import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
 
   const user = useCurrentUser()
+  const { createThrottle, acquireThrottle } = useDejaCloud()
   const { 
     isDejaJS,
     isDejaServer,
@@ -21,6 +23,9 @@
   } = storeToRefs(useConnectionStore())
 
   const openThrottle = async (address: number) => {
+    console.log('openThrottle', address)
+    const throttle = await createThrottle(address)
+    console.log('openThrottle', throttle)
     router.push({ name: 'cloud-throttle', params: { address } })
   }
 

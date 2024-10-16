@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {  
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
   .btn {
     @apply font-bold py-2 px-4 rounded;
   }

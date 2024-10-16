@@ -8,7 +8,9 @@
 
   const route = useRoute()
   const { acquireThrottle, releaseThrottle } = useThrottleStore()
-  const throttle  = computed(() => acquireThrottle(route.params.address))
+  const throttle  = computed(() => route.params?.address
+    ? acquireThrottle(parseInt(route.params.address.toString()))
+    : null)
 
   function handleRelease() {
     throttle.value?.id && releaseThrottle(throttle.value?.id)

@@ -18,7 +18,6 @@
   import Functions from '@/functions/Functions.component.vue'
   import type { Loco, LocoFunction, ConsistLoco, Throttle } from './types';
   import { useThrottle } from './useThrottle'
-  import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
 
   const DEBOUNCE_DELAY = 100 // debounce speed changes by 100ms to prevent too many requests
   const SWITCH_DIR_DELAY = 1000 // delay in ms to switch direction - occurs when slider goes from positive to negative value - which an occur quickly
@@ -34,21 +33,16 @@
     }
   })
 
-  const emit = defineEmits(['release'])
+  const emit = defineEmits(['release', 'change'])
 
   const { updateSpeed } = useThrottle()
-  const dejaCloud = useDejaCloud()
-  // const { locoDocId } = storeToRefs(dejaCloudStore)
-
-  // const locoDocId = computedAsync(async () => await dejaCloud.getLocoDbId(props.throttle.address), null)
-  // const loco = computedAsync(async () => locoDocId.value ? await dejaCloud.getLocoById(locoDocId.value) : null, null)
-
-  console.log('loco', props.loco)
 
   const functionsCmp = ref(null)
   const currentSpeed = ref(props.throttle?.speed || 0)
 
   const setSpeed = debounce((val: number): void => { currentSpeed.value = val; }, `${DEBOUNCE_DELAY}ms`)
+
+  watch(currentSpeed, sendLocoSpeed)
 
   async function handleStop() {
     currentSpeed.value = 0
@@ -73,15 +67,13 @@
     updateSpeed(props.throttle?.address, newSpeed, oldSpeed)
   }
 
-function openFunctions() {
-  functionsCmp.value && functionsCmp.value.openAll()
-}
+  function openFunctions() {
+    functionsCmp.value && functionsCmp.value.openAll()
+  }
 
-function openFunctionSettings() {
-  functionsCmp.value && functionsCmp.value.openSettings()
-}
-
-  watch(currentSpeed, sendLocoSpeed)
+  function openFunctionSettings() {
+    functionsCmp.value && functionsCmp.value.openSettings()
+  }
   
 </script>
 <template>
@@ -92,7 +84,7 @@ function openFunctionSettings() {
       <template v-slot:right>
         <aside class="grid grid-flow-col gap-1 items-center space-1">
           <Consist v-if="loco" :loco="loco" />
-          <ThrottleLayout />
+          <ThrottleLayout @change="(e) => emit('change', e)" />
           <button class="btn btn-square btn-secondary" @click="clearLoco">
             <MdLocalParking alt="clear layout" class="w-8 h-8 stroke-none" />
           </button>
