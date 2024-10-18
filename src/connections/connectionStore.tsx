@@ -58,7 +58,6 @@ export const useConnectionStore = defineStore('connections', {
       this.ports = []
 
       localStorage.removeItem('@DEJA/layoutId')
-      localStorage.removeItem('@DEJA/conn')
     },
     resetConnections() {
       this.isEmulated = false

@@ -5,13 +5,21 @@
   import ConnectionStatus from '@/core/ConnectionStatus.component.vue'
   import useDcc from '@/api/dccApi'
   import { useDejaJs } from '@/api/useDejaJs'
+  import { useLayout } from '@/api/useLayout'
   import router from '@/router'
   import tttButton from '@/shared/ui/tttButton.component.vue'
   import DejaDCCEX from '@/deja-cloud/DejaDCCEX.vue'
   import { useConnectionStore } from '@/connections/connectionStore.jsx'
+  import DejaJSDevice from '@/connections/deja/DejaJSDevice.vue'
   import closeIconSvg from '@/assets/icons/close.svg'
   import DejaPortList from '@/deja-cloud/DejaPortList.vue'
   
+
+  const { getLayout, getDevices } = useLayout()
+
+  const layout = getLayout()
+  const devices = getDevices()
+
   const user = useCurrentUser()
   const dccApi = useDcc()
   const dejaJsApi = useDejaJs()
@@ -21,7 +29,7 @@
   const storedLayoutsData = localStorage.getItem('@DEJA/layouts')
   const MAX_SAVED_LAYOUTS = 10
   const layouts = ref(storedLayoutsData ? JSON.parse(storedLayoutsData) : [])
-  const layout = ref(null)
+  // const layout = ref(null)
 
   onMounted(async () => {
     // if (layoutId.value) {
@@ -53,7 +61,7 @@
     console.log('LayoutConnect.handleGoClick', layout.value)
     layoutId.value = layout.value
     !!layout.value && savelayout(layout.value)
-    await dejaJsApi.connect()
+    // await dejaJsApi.connect()
     
   }
   const handleDisconnectClick = () => {
@@ -77,7 +85,7 @@
     const newLayoutId = e.target.value
     layoutId.value = newLayoutId    
     !!newLayoutId && savelayout(newLayoutId)
-    await dejaJsApi.connect()
+    // await dejaJsApi.connect()
   }
 
   const clearLayout = (e:any) => {
@@ -123,21 +131,24 @@
         <h1 class="text-transparent text-2xl bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-600">Selected Layout:</h1>
         <h2 class="text-5xl flex items-end ">
           <span class="bg-clip-text bg-gradient-to-r from-red-800 to-fuchsia-700 uppercase font-extrabold">
-            {{ layoutId}}
-            
+            {{ layoutId}}            
             <button class="btn btn-circle btn-outline text-white btn-xs bg-gray-200 border-gray-200" @click="clearLayout">
               <img :src="closeIconSvg" alt="clear layout"  class="h-3 w-3" />
             </button>
           </span>
         </h2>
         <div className="divider"></div>
+
         <div v-if="conn.isDejaJS && conn.dccExConnected" class="text-green-500 text-center flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-32 h-32 mr-1">
             <path fill-rule="evenodd" d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z" clip-rule="evenodd" />
           </svg>
         </div>
         <template v-else-if="user && layoutId">
-          <DejaPortList @connect="handlePortClick" />
+          <DejaJSDevice v-for="item in devices" :key="item.id" :device="item" :ports="layout?.ports" />
+
+          <pre>{{ layout }}</pre>
+          <!-- <DejaPortList @connect="handlePortClick" /> -->
         </template>
         <div v-else-if="!ports?.length">
           <span class=" ">Loading</span>

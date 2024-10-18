@@ -103,7 +103,20 @@
           class="bg-gradient-to-r from-cyan-800 to-violet-800"
           @disconnect="handleDisconnect()">    
           <template v-if="(!!user)" v-slot:desc>
-            <DejaUser />
+            <DejaUser class="m-1" />
+
+            <button class="m-1 btn btn-primary "  @click="$router.push({ name: 'dejajs' })">
+              <BsCpu class="h-3 w-3 stroke-none mx-1" />
+              DejaJS Server
+            </button>
+            <!-- <p class="py-1">
+              Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
+            </p> -->
+            <button class="m-1 btn btn-primary"  @click="$router.push({ name: 'deja-direct' })">
+              <BsCpu class="h-3 w-3 stroke-none mx-1" />
+              DejaUSBDirect Server
+            </button>
+
           </template>
           <template v-slot:actions>
             <DejaSignout v-if="(!!user)" />
@@ -118,7 +131,7 @@
       </div>
       <div class="divider"></div>
       <div class="stats stats-vertical w-full">
-        <StatusMenuItem 
+        <!-- <StatusMenuItem 
           :icon="BsDatabaseGear" 
           :is-connected="(isDejaServer)"
           item-label="DEJA Server" 
@@ -134,22 +147,19 @@
           @disconnect="handleDisconnect()">    
           <LayoutChip v-if="isDejaJS" @click="$router.push({ name: 'dejajs' })" />
           <template v-slot:desc>
-            <!-- <p class="py-1">
-              Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
-            </p> -->
           </template>
-        </StatusMenuItem>
+        </StatusMenuItem> -->
         <StatusMenuItem 
           :icon="BsUsbSymbol" 
           :is-connected="isSerial"
-          item-label="DEJA Direct"  
+          item-label="DEJA Throtltle Direct"  
           @disconnect="handleDisconnect()"
           @connect="handleSerial">    
           {{ isSerial ? 'Connected' : '' }}
           <template v-slot:desc>
-            <!-- <p class="py-1">
+            <p class="py-1">
               Connect DEJA Throttle to a DCCEX Command Station Arduino connected directly to this computer. Requires modern Chromium browser.
-            </p> -->
+            </p>
           </template>
         </StatusMenuItem>
         <StatusMenuItem 
@@ -160,9 +170,16 @@
           @connect="handleEmulator">    
           {{ isEmulated ? 'Connected' : '' }}
           <template v-slot:desc>
-            <!-- <p class="py-1">
+            <p class="py-1">
               Emulate a connection to a DCC-EC EX-CommandStation. This connection mode allows you to test the DEJA Throttle without a physical connection to a DCC-EC EX-CommandStation.
-            </p> -->
+            </p>
+          </template>
+            
+          <template v-slot:actions>
+            <button @click="() => isEmulated ? handleEmulator() : handleDisconnect()" class="btn btn-sm btn-outline btn-primary">
+              <BsCupHotFill class="h-3 w-3 stroke-none mx-1" />
+              {{ isEmulated ? 'Disconnect' : 'Emulator' }}
+            </button>
           </template>
         </StatusMenuItem>
       </div>

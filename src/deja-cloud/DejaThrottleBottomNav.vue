@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { useCollection } from 'vuefire'
-import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
+import { useLocos } from '@/api/useLocos'
 import { VaAvatar } from 'vuestic-ui'
 
-const { getThrottles } = useDejaCloud()
+const { getThrottles } = useLocos()
 const throttles = getThrottles()
 
 </script>

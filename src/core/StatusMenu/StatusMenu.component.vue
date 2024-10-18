@@ -19,6 +19,7 @@
   import { BiServer, BiSolidServer } from "vue3-icons/bi"
 import { serverTimestamp } from 'firebase/database'
 import DejaSignout from '@/deja-cloud/DejaSignout.vue'
+import DejaUser from '@/deja-cloud/DejaUser.vue'
 
   const user = useCurrentUser()
   const dccApi = useDcc()
@@ -95,7 +96,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
       <div tabindex="0" role="button" class="btn m-1">
         <ul class="flex items-center justify-center">
           <li class="mx-1">
-            <BsCloudFill v-if="isDejaServer" class="w-4 h-4 text-success  stroke-none" />
+            <BsCloudFill v-if="isDejaServer" class="w-4 h-4 text-success stroke-none" />
             <BsFillLightningChargeFill v-else-if="isDejaJS" class="w-4 h-4 text-success  stroke-none" />
             <BsUsbSymbol v-else-if="isSerial" class="w-4 h-4 text-success  stroke-none" />
             <BsCupHotFill v-else-if="isEmulated" class="w-4 h-4 text-success  stroke-none" />
@@ -116,26 +117,7 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
         class="dropdown-content z-20 w-auto">
         <div class="stats stats-vertical shadow bg-slate-900">
 
-          <StatusMenuItem 
-              :icon="BsCloudFill" 
-              :is-connected="!!user"
-              item-label="DEJA Cloud" 
-              page="deja"
-              class="text-neutral">    
-              <template v-if="!!user" v-slot:actions>
-                <DejaSignout class="outline" outline />
-              </template>
-              <template v-else v-slot:actions>
-                <button @click="$router.push({ name: 'deja-cloud' })" class="btn btn-sm btn-outline mr-2" >
-                  Login
-                </button>
-                <button @click="$router.push({ name: 'deja-cloud' })" class="btn btn-sm btn-outline" >
-                  Sign Up
-                </button>
-              </template>
-            </StatusMenuItem>
-
-          <template v-if="!(dccExConnected || isEmulated || isSerial)">
+          <template v-if="!(isDejaServer || isDejaJS || isEmulated || isSerial)">
             <StatusMenuItem 
               :icon="BsFillLightningChargeFill" 
               :is-connected="false"
@@ -211,22 +193,43 @@ import DejaSignout from '@/deja-cloud/DejaSignout.vue'
               <VaChip v-else-if="isEmulated" @click="navigate" outline>Emulated</VaChip>
               <VaChip :color="disabledColor" v-else @click="navigate" outline>Disconnected</VaChip>
             </router-link>
-            <template v-if="layoutId" v-slot:actions>
-              <button @click="handleDisconnect" class="btn btn-sm btn-outline btn-primary">
-                <BsCpu class="h-3 w-3 stroke-none" />
-                Disconnect
-              </button>              
+            <template v-if="layoutId" v-slot:actions>            
               <button class="btn btn-sm btn-outline mx-2" @click="handleStatus">
                 Get Status
               </button>
-              <!-- <button class="btn btn-sm btn-outline" disabled>
-                View Log
-              </button> -->
-            </template>
-            <template v-else v-slot:actions>
-              <template></template>
+              <router-link
+              :to="`/connect`"
+              custom
+              v-slot="{ navigate }"
+              >
+                <button class="btn btn-sm btn-outline" @click="navigate">
+                  Connect
+                </button>
+              </router-link>
             </template>
           </StatusMenuItem>
+
+          <StatusMenuItem 
+              :icon="BsCloudFill" 
+              :is-connected="!!user"
+              item-label="DEJA Cloud" 
+              page="deja"
+              class="text-neutral">   
+              <template v-if="!!user" slot="desc">
+                <DejaUser class="text-sm my-2" />
+              </template> 
+              <template v-if="!!user" v-slot:actions>
+                <DejaSignout class="outline" outline />
+              </template>
+              <template v-else v-slot:actions>
+                <button @click="$router.push({ name: 'deja-cloud' })" class="btn btn-sm btn-outline mr-2" >
+                  Login
+                </button>
+                <button @click="$router.push({ name: 'deja-cloud' })" class="btn btn-sm btn-outline" >
+                  Sign Up
+                </button>
+              </template>
+            </StatusMenuItem>
 
         </div>
       </div>

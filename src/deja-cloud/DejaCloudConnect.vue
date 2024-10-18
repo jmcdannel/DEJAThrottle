@@ -2,6 +2,7 @@
   import { onMounted, computed, watch } from 'vue'
   import { storeToRefs } from 'pinia'
   import { useCurrentUser, useDocument } from 'vuefire'
+  import { watchArray } from '@vueuse/core'
   import { doc } from "firebase/firestore"
   import { db } from "@/firebase"
   import dayjs from 'dayjs'
@@ -10,7 +11,8 @@
   import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
   import { useDcc } from '@/api/dccApi'
-import { cp } from 'fs'
+  import { useLayout } from '@/api/useLayout'
+  import DejaCloudConnectDevice from './DejaCloudConnectDevice.vue'
 
   const user = useCurrentUser()
   const conn = useConnectionStore()
@@ -20,12 +22,10 @@ import { cp } from 'fs'
   dayjs.extend(relativeTime)
 
   const { layoutId, dccExConnected } = storeToRefs(conn)
-
-  const layoutDoc = computed(() => layoutId.value 
-    ? doc(db, "layouts", layoutId.value) 
-    : null)
+  const { getLayout, getDevices } = useLayout()
     
-  const layout = useDocument(layoutDoc)
+  const layout = getLayout()
+  const devices = getDevices()
 
 
   const lastUpdated = computed(() => layout?.value?.dccEx.timestamp.seconds)
@@ -33,6 +33,7 @@ import { cp } from 'fs'
   const client = computed(() => layout?.value?.dccEx.client)
 
   watch(lastUpdated, (newVal, oldVal) => {
+    console.log('layout updated', newVal, oldVal)
     const now = dayjs()
     const updated = dayjs.unix(newVal)
     if (!dccExConnected.value && now.diff(updated, 'minute') < 2) {
@@ -60,19 +61,9 @@ import { cp } from 'fs'
     }
   })
 
-  onMounted(async () => {
-    try {
-      if (layoutId.value) {
-        console.log('CONNECTING TO DEJA CLOUD', !!user.value, user?.value?.email, layoutId?.value)
-        // conn.connect('cloud', layoutId.value)
-        await dejaCloudStore.init(layoutId.value)
-        dcc.send('getStatus', { layoutId: layoutId.value })
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  });
 </script>
 
 <template>
+  <!-- <pre>{{ layout }}</pre> -->
+  <DejaCloudConnectDevice v-for="device in devices" :key="device.id" :deviceId="device.id" :device="device" />
 </template>

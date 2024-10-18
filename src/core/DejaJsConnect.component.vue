@@ -6,7 +6,7 @@
 
   onMounted(async () => {
     console.log('connecting from DejaJsConnect')
-    await dejaJsApi.connect()
+    // await dejaJsApi.connect()
   })
 </script>
 

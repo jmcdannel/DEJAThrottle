@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useCollection } from 'vuefire'
 import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
-import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
 import { VaAvatar } from 'vuestic-ui';
+import { useLocos } from '@/api/useLocos'
 
 defineProps({
   allowAdd: {
@@ -13,7 +12,8 @@ defineProps({
 })
 
 const emit = defineEmits(['selected'])
-const { createLoco, getLocos } = useDejaCloud()
+const { createLoco } = useDejaCloud()
+const { getLocos } = useLocos()
 const address = ref(null)
 const name = ref(null)
 const locos = getLocos()

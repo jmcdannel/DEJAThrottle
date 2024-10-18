@@ -1,43 +1,31 @@
 <script async setup lang="ts">
   import { computed, onMounted, watch, shallowRef, ref } from 'vue'
   import { useRoute } from 'vue-router'
-  import { computedAsync } from '@vueuse/core'
-  import { useDocument, useCollection, firestoreDefaultConverter } from 'vuefire'
+  import { useDocument } from 'vuefire'
   import router from '../router'
 
   import ThrottleComponent from '@/throttle/Throttle.component.vue'
-  import ThrottleArrayNavItem from '@/throttle/ThrottleArrayNavItem.vue'
 
+  import { useLocos } from '@/api/useLocos'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
 
   const route = useRoute()
   const carouselElement = ref(null)
-  const { acquireThrottle, releaseThrottle, getLocoByAddress, getThrottles, getLocos } = useDejaCloud()
-
+  const { releaseThrottle } = useDejaCloud()
+  const { getThrottles, getLocos } = useLocos()
 
   const viewAs = ref('Array')
 
   const address = ref(parseInt(route.params.address?.toString()))
   const throttles = getThrottles()
   const locos = getLocos()
-  // const selectedThrottle = shallowRef(acquireThrottle(address.value))
-  // const loco = shallowRef(null)
-  // const selectedThrottleIdx = ref(throttles?.value.findIndex((throttle) => throttle.id === selectedThrottle?.value?.id))
   
-
   onMounted(async () => {
-    // loco.value = await getLocoByAddress(address.value)
-    // selectedThrottleIdx.value = throttles?.value.findIndex((throttle) => throttle.id === selectedThrottle?.value?.id)
     const throttleIdx = throttles?.value.findIndex((throttle) => throttle.address === address.value)
     console.log('onMounted address', address.value, throttleIdx)
     scrollCarousel(throttleIdx)
   })
 
-  async function getData() {
-  // const selectedThrottle = computed(() =>  acquireThrottle(address.value))
-  // const loco = computed(() => getLocoByAddress(address.value))
-
-  }
   watch(
     () => route.params.address,
     (newId, oldId) => {
@@ -50,9 +38,6 @@
     const throttleIdx = throttles?.value.findIndex((throttle) => throttle.address === newAddress)
     console.log('watch addres', newAddress, oldAddress, throttleIdx)
     scrollCarousel(throttleIdx)
-    // selectedThrottle.value = acquireThrottle(newAddress)
-    // loco.value = await getLocoByAddress(newAddress)
-    // selectedThrottleIdx.value = throttles?.value.findIndex((throttle) => throttle.id === selectedThrottle?.value?.id)
   })
 
   async function handleRelease(address: number) {

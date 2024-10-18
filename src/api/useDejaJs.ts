@@ -31,13 +31,13 @@ export function useDejaJs() {
           break
         case 'status':
           console.log('!!payload?.isConnected', !!payload?.isConnected)
-          if (!!payload?.isConnected) {
-            conn.connectDccEx()
-            conn.connect('dejaJS', layoutId.value || undefined)
-          }
+          // if (!!payload?.isConnected) {
+          //   conn.connectDccEx()
+          //   conn.connect('dejaJS', layoutId.value || undefined)
+          // }
           break
         case 'connected':
-          conn.connect('dejaJS', layoutId.value || undefined)
+          // conn.connect('dejaJS', layoutId.value || undefined)
           break
       }
     } catch {
@@ -90,7 +90,11 @@ export function useDejaJs() {
 
   async function connectDejaCloud() {
     try {
-      console.log('CONNECTING TO DEJA CLOUD', layoutId?.value, user?.value)
+      console.log(
+        'CONNECTING TO DEJA CLOUD from useDejaJS',
+        layoutId?.value,
+        user?.value
+      )
 
       const layout = await dejaCloud.getLayout()
       console.log('layout', layout)
