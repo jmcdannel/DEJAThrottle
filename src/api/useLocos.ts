@@ -7,12 +7,12 @@ import {
   addDoc,
   deleteDoc,
 } from 'firebase/firestore'
-import { useStorage } from '@vueuse/core'
+import { useConnectionStore } from '@/connections/connectionStore'
 import { useCollection, useDocument } from 'vuefire'
 import { db } from '@/firebase'
 
 export function useLocos() {
-  const layoutId = useStorage('@DEJA/cloud/layoutId', 'betatrack')
+  const { layoutId } = storeToRefs(useConnectionStore())
   const roadnames = [
     {
       value: 'bnsf',
