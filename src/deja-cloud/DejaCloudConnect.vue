@@ -28,9 +28,9 @@
   const devices = getDevices()
 
 
-  const lastUpdated = computed(() => layout?.value?.dccEx.timestamp.seconds)
-  const lastConnected = computed(() => layout?.value?.dccEx.lastConnected?.seconds)
-  const client = computed(() => layout?.value?.dccEx.client)
+  const lastUpdated = computed(() => layout?.value?.dccEx?.timestamp?.seconds)
+  const lastConnected = computed(() => layout?.value?.dccEx?.lastConnected?.seconds)
+  const client = computed(() => layout?.value?.dccEx?.client)
 
   watch(lastUpdated, (newVal, oldVal) => {
     console.log('layout updated', newVal, oldVal)
