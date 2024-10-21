@@ -24,6 +24,7 @@
   import LayoutChip from '@/core/LayoutChip.vue'
   import useSerial from '@/api/serialApi'
   import router from '@/router' 
+import { templateRef } from '@vueuse/core'
  
   const { confirm } = useModal()
   const { init } = useToast()
@@ -100,7 +101,7 @@
           :is-connected="(!!user)"
           item-label="DEJA Cloud" 
           page="deja-cloud"
-          class="bg-gradient-to-r from-cyan-800 to-violet-800"
+          :class="!!user ? 'bg-gradient-to-r from-cyan-800 to-violet-800' : '' "
           @disconnect="handleDisconnect()">    
           <template v-if="(!!user)" v-slot:desc>
             <DejaUser class="m-1" />
@@ -109,14 +110,16 @@
               <BsCpu class="h-3 w-3 stroke-none mx-1" />
               DejaJS Server
             </button>
-            <!-- <p class="py-1">
-              Connect DEJA Throttle to a DEJA.js server. The Definitive, Transformative, Innovative DCC-EX CommandStation API. Requires modern Chromium browser.
-            </p> -->
             <button class="m-1 btn btn-primary"  @click="$router.push({ name: 'deja-direct' })">
               <BsCpu class="h-3 w-3 stroke-none mx-1" />
               DejaUSBDirect Server
             </button>
 
+          </template>
+          <template v-else v-slot:desc>
+            <p class="py-1">
+              Connect DEJA Throttle to a DEJA.js Server or DEJADirect Server. The Definitive, Transformative, Innovative DCC-EX CommandStation API.
+            </p>
           </template>
           <template v-slot:actions>
             <DejaSignout v-if="(!!user)" />

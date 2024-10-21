@@ -14,6 +14,10 @@
     disabled: {
       type: Boolean,
       default: false
+    },
+    horizontal: {
+      type: Boolean,
+      default: false
     }
   })
 
@@ -40,14 +44,15 @@
   }
 
   const btnClasses = 'btn btn-accent relative h-auto mx-auto md:w-24 '
-  const iconClasses = 'h-8 w-8 md:h-16 md:w-16 relative'
+  const iconClasses = `h-8 w-8 md:h-16 md:w-16 relative ${props.horizontal ? '-rotate-90' : ''}`
 
 </script>
 <template>
-  <div class="px-2 py-4 flex flex-col justify-stretch align-middle flex-grow">
+  <div class="p-2 flex justify-stretch items-center flex-grow"
+    :class="`${horizontal ? 'flex-row' : 'flex-col'}`">
     <button 
-      class="rounded-b-none rounded-t-3xl flex-grow" 
-      :class="btnClasses"
+      class=" flex-grow" 
+      :class="`${btnClasses} ${horizontal ? 'rounded-r-none rounded-l-3xl' : 'rounded-b-none rounded-t-3xl'}`"
       @click="handleUp5">
       <img 
         :src="chevronDoubleUpIconSvg" 
@@ -65,8 +70,10 @@
       />
     </button>
     <button 
-      class="btn bg-red-500 rounded-3xl py-6 min-h-16 h-auto mx-auto w-28 md:w-36 relative z-10" @click="handleStop">
-      <img :src="stopIconSvg" :class="iconClasses" />
+      class="btn bg-red-500 rounded-3xl py-6 min-w-16 min-h-16 h-auto mx-auto relative z-10"
+      :class="horizontal ? 'h-22 md:h-36' : 'w-28 md:w-36'"
+       @click="handleStop">
+      <img :src="stopIconSvg" class="h-8 w-8 md:h-16 md:w-16 relative" />
     </button>
     <button 
       class="rounded-none  flex-grow"
@@ -79,8 +86,8 @@
     </button>
     <hr class="border-black" />
     <button 
-      class="rounded-t-none rounded-b-3xl flex-grow" 
-      :class="btnClasses"
+      class="flex-grow" 
+      :class="`${btnClasses} ${horizontal ? 'rounded-l-none rounded-r-3xl' : 'rounded-t-none rounded-b-3xl'}`"
       @click="handleDown5">
       <img 
         :src="chevronDoubleDownIconSvg" 

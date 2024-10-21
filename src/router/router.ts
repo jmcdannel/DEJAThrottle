@@ -21,6 +21,12 @@ const router = createRouter({
       component: SelectConnections,
     },
     {
+      path: '/effects',
+      name: 'effects',
+      component: () => import('../views/EffectsView.vue'),
+      props: { dejaCloud: false },
+    },
+    {
       path: '/throttle/:address',
       name: 'throttle',
       component: () => import('../views/ThrottleView.vue'),

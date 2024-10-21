@@ -2,8 +2,7 @@
   import { ref, watch, computed, onMounted, type PropType } from 'vue'
   import { storeToRefs } from 'pinia'
   import { debounce } from 'vue-debounce'
-  import { useRes } from '@vueuse/core'
-  import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+  import { computedAsync } from '@vueuse/core'
   import { MdLocalParking } from "vue3-icons/md"
   import { RiTrainWifiFill } from 'vue3-icons/ri'  
   import { 
@@ -31,16 +30,11 @@
     loco: {
       type: Object as PropType<Loco>,
       required: false
-    },
-    viewAs: {
-      type: String,
-      required: false
     }
   })
 
   const emit = defineEmits(['release', 'change'])
 
-  const breakpoints = useBreakpoints(breakpointsTailwind)
   const { updateSpeed } = useThrottle()
 
   const functionsCmp = ref(null)
@@ -49,11 +43,6 @@
   const setSpeed = debounce((val: number): void => { currentSpeed.value = val; }, `${DEBOUNCE_DELAY}ms`)
 
   watch(currentSpeed, sendLocoSpeed)
-  watch(() => props.throttle?.speed, (newSpeed, oldSpeed) => {
-    currentSpeed.value = newSpeed
-  })
-
-  console.log('Throttle.component', { props, currentSpeed })
 
   async function handleStop() {
     currentSpeed.value = 0
@@ -85,58 +74,22 @@
   function openFunctionSettings() {
     functionsCmp.value && functionsCmp.value.openSettings()
   }
-
-  const showSlider = (props.viewAs === 'Split' && breakpoints.greaterOrEqual('md')) || (breakpoints.greaterOrEqual('sm'))
-
+  
 </script>
 <template>
-  <main class="card shadow-xl flex-grow overflow-auto relative bg-gradient-to-br from-violet-800 to-cyan-500 bg-gradient-border " v-if="throttle">
+  <main class="rounded-2xl shadow-xl relative bg-gradient-to-br from-violet-800 to-cyan-500 bg-gradient-border " v-if="throttle">
     <!-- <pre>locoDocId:{{locoDocId}}</pre>-->
     <!-- <pre>loco:{{loco.functions}}</pre>  -->
-    <ThrottleHeader :address="throttle.address">
-      <template v-slot:center>
-        <Consist v-if="loco" :loco="loco" />
-      </template>
-      <template v-slot:right>
-        <aside class="grid grid-flow-col gap-1 items-center space-1 bg-purple-900 bg-opacity-50 p-2 rounded-lg">
-          <ThrottleLayout @change="(e) => emit('change', e)" />
-          <button class="btn btn-sm sm:btn-md btn-ghost border border-purple-600 border-opacity-50 rounded-none hover:bg-purple-800 hover:bg-opacity-65" @click="clearLoco">
-            <MdLocalParking alt="clear layout" class="w-4 h-4 md:w-6 md:h-6 stroke-none" />
-          </button>
-          <button class="btn btn-sm sm:btn-md btn-ghost border border-purple-600 border-opacity-50 rounded-none hover:bg-purple-800 hover:bg-opacity-65" @click="openFunctionSettings" >
-            <IoIosCog class="w-4 h-4 md:w-6 md:h-6 stroke-none" />
-          </button>
-          <button class="btn btn-sm sm:btn-md btn-ghost border border-purple-600 border-opacity-50 rounded-l hover:bg-purple-800 hover:bg-opacity-65" @click="openFunctions" >
-            <RiTrainWifiFill class="w-4 h-4 md:w-6 md:h-6 stroke-none" />
-          </button>
-        </aside>
-      </template>
-    </ThrottleHeader>
-    <section class="throttle flex flex-row flex-grow overflow-auto">
-      <section v-if="showSlider" class="pt-4 pb-8 px-1 text-center flex-1">
-        <ThrottleSliderControls :speed="currentSpeed" @update:currentSpeed="setSliderSpeed" @stop="handleStop" />  
+    
+    <section class="p-4 flex flex-row flex-wrap items-center justify-between overflow-auto">
+        <CurrentSpeed :speed="currentSpeed" class="order-0" />
+        <ThrottleButtonControls :speed="currentSpeed" @update:currentSpeed="adjustSpeed" @stop="handleStop" horizontal class="order-2 sm:order-1 w-full sm:w-auto"  />
+        <div class="avatar placeholder order-1 sm:order-2">
+          <div class="bg-sky-500 text-neutral-content rounded-full w-12 md:w-24">
+            <span class="text-xl md:text-4xl bold">{{ throttle.address || '?' }}</span>
+          </div>
+        </div>
       </section>
-      <section v-if="loco" class="flex pt-4 flex-col items-center justify-between flex-0 sm:flex-1">
-        <Functions :loco="loco" ref="functionsCmp" />
-      </section>
-  <!-- <div class="font-mono">
-    <div> Current showSlider: {{ showSlider }} </div>
-    <div> Current breakpoints: {{ current }} </div>
-    <div> Active breakpoint: {{ active }} </div>
-    <div> xs(&lt;{{ smWidth }}px): {{ xs }}</div>
-    <div> xs(&lt;={{ smWidth }}px): {{ xse }}</div>
-    <div> sm: {{ sm }}</div>
-    <div> md: {{ md }}</div>
-    <div> lg: {{ lg }}</div>
-    <div> xl: {{ xl }}</div>
-    <div>2xl: {{ xxl }}</div>
-    <div>greaterThanBreakPoint: {{ isGreaterThanBreakpoint }}</div>
-  </div> -->
-      <section class="pt-4 flex flex-col items-center justify-between flex-1">
-        <CurrentSpeed :speed="currentSpeed" />
-        <ThrottleButtonControls :speed="currentSpeed" @update:currentSpeed="adjustSpeed" @stop="handleStop" />
-      </section>
-    </section>
   </main>  
 </template>
 <style scroped>

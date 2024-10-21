@@ -20,6 +20,7 @@
   const dejaCloudStore = useDejaCloudStore()
   const { layoutId, isDejaJS, isDejaServer, connectionType } = storeToRefs(connectionStore)
   const { initialized } = storeToRefs(dejaCloudStore)
+  
   onMounted(async () => {
     const auth = getAuth(firebaseApp)
     console.log('App.vue onMounted', auth)

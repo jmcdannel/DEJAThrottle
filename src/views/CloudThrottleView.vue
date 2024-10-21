@@ -1,10 +1,13 @@
 <script async setup lang="ts">
   import { computed, onMounted, watch, shallowRef, ref } from 'vue'
   import { useRoute } from 'vue-router'
-  import { useDocument } from 'vuefire'
+  import { useStorage } from '@vueuse/core'
   import router from '../router'
 
+  import ThrottleLayout from '@/throttle/ThrottleLayout.vue'
   import ThrottleComponent from '@/throttle/Throttle.component.vue'
+  import ThrottleTile from '@/throttle/ThrottleTile.vue'
+  import ThrottleAvatar from '@/throttle/ThrottleAvatar.vue'
 
   import { useLocos } from '@/api/useLocos'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
@@ -14,11 +17,12 @@
   const { releaseThrottle } = useDejaCloud()
   const { getThrottles, getLocos } = useLocos()
 
-  const viewAs = ref('Array')
+  const viewAs = useStorage('@DEJA/prefs/throttleView', 'Array')
 
   const address = ref(parseInt(route.params.address?.toString()))
   const throttles = getThrottles()
   const locos = getLocos()
+  const currentThrottle = computed(() => throttles?.value.find((throttle) => throttle.address === address.value))
   
   onMounted(async () => {
     const throttleIdx = throttles?.value.findIndex((throttle) => throttle.address === address.value)
@@ -31,6 +35,7 @@
     (newId, oldId) => {
       console.log('watch oute.params.address', newId, oldId)
       address.value = parseInt(newId?.toString())
+      currentThrottle.value = throttles?.value.find((throttle) => throttle.address === address.value)
     }
   )
 
@@ -70,98 +75,87 @@
     return {
       'carousel-item': true,
       'relative': true,
-      'w-full': viewAs.value === 'Array' || viewAs.value === 'Carousel',
-      'w-1/2': viewAs.value === '2up'
+      'w-full': viewAs.value === 'Array',
+      'w-1/2': viewAs.value === 'Split'
     }
   })
-  console.log('cloud throttles', throttles, locos)
-
 
 </script>
 
 <template>
-  <template v-if="locos?.length  && throttles?.length">
-    <div 
-      class="carousel w-full"
-      :class="viewAs === 'Carousel' ? ' space-x-4 px-16' : ''"
-      ref="carouselElement">
-      <div 
-        :class="itemClasses"
-        v-for="(throttle, index) in throttles"   
-        :id="`slide${index.toString()}`"
-        :key="throttle.id">
-        <ThrottleComponent                  
-          :throttle="throttle" 
-          :loco="getLoco(throttle.address)"
-          @release="handleRelease"
-          @change="handleViewChange"
-        />
-        <div v-if="viewAs !== '2up'" class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between z-10">
-          <button @click="scrollCarousel(index-1)" class="btn btn-circle" :class="index > 0 ? 'visible' : 'invisible'">{{ throttles?.[index-1]?.address }}</button>
-          <button @click="scrollCarousel(index+1)" class="btn btn-circle" :class="index < throttles.length-1 ? 'visible' : 'invisible'">{{ throttles?.[index+1]?.address }}</button>
-        </div>
-      </div>
+  <div class="flex flex-col flex-grow overflow-scroll">
+    <ThrottleLayout @change="handleViewChange" class="bg-slate-700 relative z-40" />
+    <div class="flex flex-grow p-2">
+      <template v-if="locos?.length  && throttles?.length">
+        <template v-if="viewAs === 'Array' || viewAs === 'Split'">
+          <div 
+            class="carousel w-full"
+            ref="carouselElement">
+            <div 
+              :class="itemClasses"
+              v-for="(throttle, index) in throttles"   
+              :id="`slide${index.toString()}`"
+              :key="throttle.id">
+              <ThrottleComponent                  
+                :throttle="throttle" 
+                :loco="getLoco(throttle.address)"
+                :viewAs="viewAs"
+                @release="handleRelease"
+                @change="handleViewChange"
+              />
+              <div v-if="viewAs !== 'Split'" class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between z-10">
+                <button @click="scrollCarousel(index-1)" class="btn btn-circle" :class="index > 0 ? 'visible' : 'invisible'">{{ throttles?.[index-1]?.address }}</button>
+                <button @click="scrollCarousel(index+1)" class="btn btn-circle" :class="index < throttles.length-1 ? 'visible' : 'invisible'">{{ throttles?.[index+1]?.address }}</button>
+              </div>
+            </div>
+          </div>
+        </template>
+        <template v-else-if="viewAs === 'List'">      
+          <div class="flex-grow flex flex-col relative overflow-auto">
+            <div class="flex-grow"></div>
+            <ThrottleTile 
+              v-for="throttle in throttles"
+              :key="throttle.id"
+              :throttle="throttle" 
+              :loco="getLoco(throttle.address)"
+              @release="handleRelease"
+              @change="handleViewChange"
+            />
+          </div>
+        </template>
+        <template v-else-if="viewAs === 'Grid'">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            <ThrottleTile 
+              v-for="throttle in throttles"
+              :key="throttle.id"
+              :throttle="throttle" 
+              :loco="getLoco(throttle.address)"
+              @release="handleRelease"
+              @change="handleViewChange"
+            />
+          </div>
+        </template>
+        <template v-else-if="viewAs === 'Sidebar'">
+          <ThrottleComponent                  
+            :throttle="currentThrottle" 
+            :loco="getLoco(address)"
+            :viewAs="viewAs"
+            @release="handleRelease"
+            @change="handleViewChange"
+            class="flex-basis-2/3 w-2/3"
+          />
+          <div class="flex-grow flex flex-col relative overflow-auto items-center p-2">
+            <ThrottleAvatar 
+              v-for="throttle in throttles.filter(t => t.address !== address)"
+              :key="throttle.id"
+              :throttle="throttle" 
+              :loco="getLoco(throttle.address)"
+              @select="address = throttle.address"
+            />
+          </div>
+        </template>
+      </template>
     </div>
-    <!-- <div>
-      <pre>selectedThrottleIdx:{{  selectedThrottleIdx }}</pre>
-      <pre>locos: {{  locos }}</pre>
-      <pre>throttles: {{  throttles }}</pre>
-    </div> -->
-  </template>
-
-
-  <!-- <template 
-    v-for="(throttle, index) in throttles"
-    :key="throttle.id"
-  >
-    <template v-if="selectedThrottle && throttle?.id === selectedThrottle.id">
-      
-    </template>
-    <template v-else>
-      <div 
-        class="p-4 flex border-teal-500 bg-teal-900 bg-opacity-25 h-32 my-auto border-t border-b"
-        :class="computedLinkClass(index)">
-        <router-link
-            :to="`/cloud-throttle/${throttle?.id}`"
-            custom
-            v-slot="{ navigate }"
-          >
-          <button 
-            class="text-primary" 
-            @click="navigate" 
-            style="--va-badge-text-wrapper-border-radius: 50%;"
-            role="link">
-            <VaBadge
-              overlap
-              :text="throttle.speed.toString()"
-            >
-              <VaAvatar size="small">{{ throttle?.id }}</VaAvatar>
-            </VaBadge>
-          </button>
-        </router-link>
-      </div>
-    </template> -->
-  <!-- </template> -->
-<!-- 
-  <router-link
-      v-for="throttle in throttles"
-        :key="throttle.id"
-        :to="`/cloud-throttle/${throttle?.id}`"
-        custom
-        v-slot="{ navigate }"
-      >
-      <button 
-        class="text-primary" 
-        :class="{ active: ($route?.name === 'home' || $route?.name === 'throttle') }" 
-        @click="navigate" 
-        style="--va-badge-text-wrapper-border-radius: 50%;"
-        role="link">
-        <VaBadge
-          overlap
-          :text="throttle.speed.toString()"
-        >
-          <VaAvatar size="small">{{ throttle?.id }}</VaAvatar>
-        </VaBadge>
-      </button>
-    </router-link> -->
+    
+  </div>
 </template>

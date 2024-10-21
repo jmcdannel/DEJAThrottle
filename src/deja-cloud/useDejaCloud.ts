@@ -33,6 +33,9 @@ export function useDejaCloud() {
 
   async function send({ action, payload }) {
     switch (action) {
+      case 'effects':
+        sendDejaCommand({ action, payload })
+        break
       case 'throttle':
         sendThrottleUpdate({ action, payload })
         break
@@ -277,6 +280,25 @@ export function useDejaCloud() {
       console.log('throttle written with ID: ', throttle)
     } catch (e) {
       console.error('Error adding throttle: ', e)
+    }
+  }
+
+  async function sendDejaCommand({ action, payload }) {
+    // console.log('dejaCloud SEND', action, payload)
+    try {
+      const command = {
+        action,
+        payload,
+        timestamp: serverTimestamp(),
+      }
+
+      const result = await addDoc(
+        collection(db, `layouts/${layoutId.value}/dejaCommands`),
+        command
+      )
+      console.log('Document written with ID: ', result, command)
+    } catch (e) {
+      console.error('Error adding document: ', e)
     }
   }
 

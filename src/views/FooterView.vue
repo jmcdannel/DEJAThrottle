@@ -1,8 +1,7 @@
 <script setup lang="ts">
-  import { 
-    IoIosCog,
-  } from "vue3-icons/io";
-  import { AiFillControl } from "vue3-icons/ai";
+  import { IoIosCog } from 'vue3-icons/io'
+  import { BsFillRocketTakeoffFill } from 'vue3-icons/bs'
+  import { AiFillControl } from 'vue3-icons/ai'
 
 </script>
 <template>
@@ -18,6 +17,15 @@
         </button>
       </router-link>
       <slot></slot>
+      <router-link
+        :to="`/effects`"
+        custom
+        v-slot="{ navigate }"
+      >
+        <button class="text-primary" :class="{ active: ($route?.name === 'effects') }" @click="navigate" role="link">
+          <BsFillRocketTakeoffFill  class="w-6 h-6" />
+        </button>
+      </router-link>
       <router-link
         :to="`/connect`"
         custom
