@@ -145,8 +145,8 @@
           </svg>
         </div>
         <template v-else-if="user && layoutId">
-          <DejaJSDevice v-for="item in devices" :key="item.id" :device="item" :ports="layout?.ports" />
-
+          <!-- <DejaJSDevice v-for="item in devices" :key="item.id" :device="item" :ports="layout?.ports" /> -->
+          <p>Connect via DEJA Cloud</p>
           <pre>{{ layout }}</pre>
           <!-- <DejaPortList @connect="handlePortClick" /> -->
         </template>
