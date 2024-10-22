@@ -171,7 +171,7 @@
           </li>
         </ul>
       </div>
-      <pre>{{ conn }}</pre>
+      <!-- <pre>{{ conn }}</pre> -->
 
       <div class="flex-grow flex justify-between items-end">
         <tttButton variant="warning" size="lg" @click="handleCancelClick">Cancel</tttButton>

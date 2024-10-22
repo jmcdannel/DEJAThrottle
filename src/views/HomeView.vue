@@ -18,7 +18,9 @@
     isEmulated
   } = storeToRefs(connStore)
 
+
   console.log(
+    connStore,
     layoutId,
     isDejaJS,
     isDejaServer,
@@ -62,6 +64,6 @@
         </button>
       </section>
     </template>
-    <pre>{{ connStore }}</pre>
+    <!-- <pre>{{ connStore }}</pre> -->
   </main>
 </template>

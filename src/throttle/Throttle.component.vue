@@ -1,15 +1,12 @@
 <script setup lang="ts">
-  import { ref, watch, computed, onMounted, type PropType } from 'vue'
-  import { storeToRefs } from 'pinia'
+  import { ref, watch, type PropType } from 'vue'
   import { debounce } from 'vue-debounce'
-  import { useRes } from '@vueuse/core'
   import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
   import { MdLocalParking } from "vue3-icons/md"
   import { RiTrainWifiFill } from 'vue3-icons/ri'  
   import { 
     IoIosCog,
   } from 'vue3-icons/io'
-  import { getDocs, doc } from 'firebase/firestore'
   import ThrottleButtonControls from './ThrottleButtonControls.component.vue'
   import ThrottleSliderControls from './ThrottleSliderControls.component.vue'
   import CurrentSpeed from './CurrentSpeed.component.vue'
@@ -17,11 +14,10 @@
   import ThrottleLayout from './ThrottleLayout.vue'
   import Consist from '@/consist/Consist.component.vue'
   import Functions from '@/functions/Functions.component.vue'
-  import type { Loco, LocoFunction, ConsistLoco, Throttle } from './types';
+  import type { Loco, Throttle } from './types';
   import { useThrottle } from './useThrottle'
 
   const DEBOUNCE_DELAY = 100 // debounce speed changes by 100ms to prevent too many requests
-  const SWITCH_DIR_DELAY = 1000 // delay in ms to switch direction - occurs when slider goes from positive to negative value - which an occur quickly
 
   const props = defineProps({
     throttle: {
