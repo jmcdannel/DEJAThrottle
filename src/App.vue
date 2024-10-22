@@ -29,7 +29,7 @@
         if (user) {
           // User is signed in.
           console.log('User is signed in.', auth)
-          // layoutId.value && await dejaJsApi.connectDejaCloud()
+          layoutId.value && await dejaJsApi.connectDejaCloud()
           // layoutId.value && await dejaCloudStore.init(layoutId.value)
         } else {
           // No user is signed in.
