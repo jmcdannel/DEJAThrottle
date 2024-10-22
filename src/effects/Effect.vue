@@ -23,25 +23,19 @@ async function handleEfx (event: Event) {
 
 </script>
 <template>
-  <div class="card card-compact bg-base-100 shadow-xl w-full">
-    <figure>
-      <component :is="efxType?.icon" class="w-full h-24 stroke-none"></component>
-      <!-- <img
-        src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-        alt="Shoes" /> -->
-
-      <div class="form-control w-52">
+  <div class="card card-compact shadow-xl w-full my-1 bg-gradient-to-r from-rose-950 to-slate-900 border border-rose-500">
+    <div class="card-body flex flex-row items-center justify-center">
+      <component :is="efxType?.icon" class="w-6 h-6 stroke-none"></component>
+      <h2 class="flex-grow text-xl font-bold">{{efx?.name}}</h2>
+      <!-- <p>{{ efxId }}</p> -->
+      <div class="form-control">
         <label class="label cursor-pointer">
           <span class="label-text sr-only">Remember me</span>
-          <input type="checkbox" class="toggle toggle-primary" checked="checked" @click="handleEfx" />
+          <input type="checkbox" class="toggle toggle-primary bg-rose-500 hover:bg-red-400" @click="handleEfx" />
         </label>
       </div>
-    </figure>
-    <div class="card-body">
-      <h2 class="card-title">{{efx?.name}}</h2>
-      <p>{{ efxId }}</p>
-      <p>{{ efxType?.label }}</p>
-      <p>{{ efx?.device }}</p>
+      <!-- <p>{{ efxType?.label }}</p>
+      <p>{{ efx?.device }}</p> -->
     </div>
   </div>
 </template>

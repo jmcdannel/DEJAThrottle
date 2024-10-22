@@ -27,14 +27,14 @@ async function handleTurnouts (event: Event) {
 
 </script>
 <template>
-  <div class="card card-compact bg-base-100 shadow-xl w-full my-2">
+  <div class="card card-compact shadow-xl w-full my-1 border-opacity-50 bg-gradient-to-r from-indigo-950 to-slate-900 border border-indigo-500">
     <div class="card-body flex flex-row items-center justify-center">
       <MdOutlineForkLeft class="w-6 h-6 stroke-none"></MdOutlineForkLeft>
       <h2 class="flex-grow text-xl font-bold">{{turnout?.name}}</h2>
       <div class="form-control">
         <label class="label cursor-pointer">
           <span class="label-text sr-only">Toggle Turnout</span>
-          <input type="checkbox" class="toggle toggle-primary" @click="handleTurnouts" />
+          <input type="checkbox" class="toggle toggle-primary bg-yellow-500 hover:bg-indigo-500" @click="handleTurnouts" />
         </label>
       </div>
       <!-- <p>{{ turnout?.type }}</p>
