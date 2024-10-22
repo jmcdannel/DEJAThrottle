@@ -75,7 +75,7 @@
 
   async function sendLocoSpeed(newSpeed:number, oldSpeed:number) {
     console.log('sendLocoSpeed', { newSpeed, oldSpeed }, props.throttle?.address, props.throttle)
-    updateSpeed(props.throttle?.address, newSpeed, oldSpeed)
+    updateSpeed(props.throttle?.address, props.loco?.consist, newSpeed, oldSpeed)
   }
 
   function openFunctions() {

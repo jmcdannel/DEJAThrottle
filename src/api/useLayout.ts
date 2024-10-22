@@ -104,11 +104,6 @@ export const useLayout = () => {
       } else if (device?.type === 'deja-arduino') {
         // sendDejaCommand({ action: 'connect', payload })
       }
-
-      // await addDoc(
-      //   collection(db, `layouts/${layoutId.value}/dccCommands`),
-      //   command
-      // )
       console.log('Document written with ID: ', serial, device)
     } catch (e) {
       console.error('Error adding document: ', e)

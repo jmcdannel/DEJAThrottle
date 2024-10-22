@@ -41,7 +41,7 @@ async function handleEfx (event: Event) {
       <h2 class="card-title">{{efx?.name}}</h2>
       <p>{{ efxId }}</p>
       <p>{{ efxType?.label }}</p>
-      <p>{{ efx?.interface }}</p>
+      <p>{{ efx?.device }}</p>
     </div>
   </div>
 </template>

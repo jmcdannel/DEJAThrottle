@@ -1,20 +1,14 @@
 <script setup lang="ts">
   import { storeToRefs } from 'pinia'
-  import {
-    BsCloudFill,
-    BsCpu,
-  } from 'vue3-icons/bs'
+  import { BsCpu } from 'vue3-icons/bs'
   import { useCurrentUser } from 'vuefire'
-  import router from '@/router'
+  import { useConnectionStore } from '@/connections/connectionStore'
   import Roster from '@/core/Roster.vue'
   import DejaCloudRoster from '@/deja-cloud/DejaCloudRoster.vue'
   import LayoutChip from '@/core/LayoutChip.vue'
   import ConnectionChip from '@/core/ConnectionChip.vue'
-  import { useConnectionStore } from '@/connections/connectionStore'
-  import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
 
   const user = useCurrentUser()
-  const { createThrottle, acquireThrottle } = useDejaCloud()
   const { 
     layoutId,
     isDejaJS,
@@ -30,12 +24,6 @@
     isSerial,
     isEmulated)
 
-  const openThrottle = async (address: number) => {
-    console.log('openThrottle', address)
-    const throttle = await createThrottle(address)
-    console.log('openThrottle', throttle)
-    router.push({ name: 'cloud-throttle', params: { address } })
-  }
 
 </script>
 <template>
@@ -57,7 +45,7 @@
         <strong class="text-7xl uppercase">Loco</strong>
       </h2>
       <template v-if="!!user && layoutId">
-        <DejaCloudRoster @selected="openThrottle" />
+        <DejaCloudRoster />
       </template>
       <template v-else>
         <Roster />

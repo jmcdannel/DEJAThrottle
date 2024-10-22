@@ -1,0 +1,20 @@
+<script setup lang="ts">
+  import { useCurrentUser } from 'vuefire'
+  import Turnouts from '@/turnouts/Turnouts.vue'
+  const user = useCurrentUser()
+  
+</script>
+
+<template>
+  <div class="flex flex-col p-4 flex-grow">
+    <h2 class="mb-4 placeholder:font-extrabold text-transparent text-4xl bg-clip-text bg-gradient-to-r from-purple-300 to-pink-600">
+      <strong class="text-3xl">Turnouts</strong>
+    </h2>
+    <template v-if="user">
+      <Turnouts />
+    </template>
+    <template v-else>
+      <p class="text-red-500">Login to DejaCloud to view turnouts.</p>
+    </template>
+  </div>
+</template>

@@ -1,25 +1,40 @@
-import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import { collection, doc } from 'firebase/firestore'
-import { useDocument } from 'vuefire'
-import { db } from '@/firebase'
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { useDcc } from '@/api/dccApi'
-import type { ConsistLoco } from './types'
-import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
+import { db } from '@/firebase'
 import { useConnectionStore } from '@/connections/connectionStore'
-import { useThrottleStore } from '@/throttle/throttleStore'
+import type { ConsistLoco } from './types'
 
 const SWITCH_DIR_DELAY = 1000 // delay in ms to switch direction - occurs when slider goes from positive to negative value - which an occur quickly
 
 export const useThrottle = () => {
   const dccApi = useDcc()
-  const dejaCloud = useDejaCloud()
   const connStore = useConnectionStore()
-  const throttleStore = useThrottleStore()
   const { layoutId } = storeToRefs(connStore)
+
+  async function acquireThrottle(address) {
+    console.log('useThrottle aquireThrottle', address)
+    try {
+      const data = {
+        address: parseInt(address),
+        speed: 0,
+        direction: false,
+        timestamp: serverTimestamp(),
+      }
+      const newThrottleDoc = await setDoc(
+        doc(db, `layouts/${layoutId.value}/throttles`, address.toString()),
+        data
+      )
+      console.log('throttle written with ID: ', newThrottleDoc)
+      return newThrottleDoc
+    } catch (e) {
+      console.error('Error adding throttle: ', e)
+    }
+  }
 
   async function updateSpeed(
     address: number,
+    consist: ConsistLoco[],
     newSpeed: number,
     oldSpeed: number
   ) {
@@ -30,23 +45,49 @@ export const useThrottle = () => {
 
     if (newSpeed > 0 && oldSpeed < 0) {
       //change direction to forward
-      await dccApi.setSpeed(address, 0)
+      stop(address, consist)
       delay = SWITCH_DIR_DELAY
     } else if (newSpeed < 0 && oldSpeed > 0) {
       //change direction to reverse
-      await dccApi.setSpeed(address, 0)
+      stop(address, consist)
       delay = SWITCH_DIR_DELAY
     }
 
+    console.log('updateSpeed', consist)
+
     if (newSpeed === 0) {
       // stop
-      await dccApi.setSpeed(address, 0)
+      stop(address, consist)
     } else {
       // set speed
       setTimeout(() => {
         dccApi.setSpeed(address, newSpeed)
+        consist &&
+          consist.forEach((cloco) => {
+            dccApi.sendDccCommand({
+              action: 'throttle',
+              payload: {
+                address: cloco.address,
+                speed: calculateConsistSpeed(newSpeed, cloco),
+              },
+            })
+          })
       }, delay)
     }
+  }
+
+  function stop(address: number, consist: ConsistLoco[]) {
+    dccApi.setSpeed(address, 0)
+    consist &&
+      consist.forEach((cloco) => {
+        dccApi.sendDccCommand({
+          action: 'throttle',
+          payload: {
+            address: cloco.address,
+            speed: 0,
+          },
+        })
+      })
   }
 
   function calculateConsistSpeed(
@@ -80,6 +121,7 @@ export const useThrottle = () => {
 
   return {
     updateSpeed,
+    acquireThrottle,
   }
 }
 

@@ -1,4 +1,6 @@
 import { storeToRefs } from 'pinia'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '@/firebase'
 import { useSerial } from '@/api/serialApi'
 import { useDejaJs } from '@/api/useDejaJs'
 import { useConnectionStore } from '@/connections/connectionStore'
@@ -65,6 +67,25 @@ export function useDcc() {
     }
   }
 
+  async function sendDccCommand({ action, payload }) {
+    // console.log('dejaCloud SEND', action, payload)
+    try {
+      const command = {
+        action,
+        payload: JSON.stringify(payload),
+        timestamp: serverTimestamp(),
+      }
+
+      await addDoc(
+        collection(db, `layouts/${layoutId.value}/dccCommands`),
+        command
+      )
+      // console.log('Document written with ID: ', command)
+    } catch (e) {
+      console.error('Error adding document: ', e)
+    }
+  }
+
   async function send(action: string, payload?: object) {
     try {
       if (isEmulated.value) {
@@ -99,6 +120,7 @@ export function useDcc() {
   }
 
   return {
+    sendDccCommand,
     send,
     setPower,
     setSpeed,

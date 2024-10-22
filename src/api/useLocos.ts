@@ -150,12 +150,11 @@ export function useLocos() {
   }
 
   async function createLoco(
-    _layoutId: string,
     locoId: number,
     name: string | undefined,
     roadname: string | undefined
   ) {
-    console.log('dejaCloud createLoco', locoId)
+    console.log('useLocos createLoco', locoId)
     try {
       const loco = {
         locoId,
@@ -167,10 +166,9 @@ export function useLocos() {
         loco.meta = { roadname }
       }
       const newLocoDoc = await addDoc(
-        collection(db, `layouts/${_layoutId}/locos`),
+        collection(db, `layouts/${layoutId.value}/locos`),
         loco
       )
-      console.log('loco written with ID: ', newLocoDoc)
       return newLocoDoc.id
     } catch (e) {
       console.error('Error adding throttle: ', e)

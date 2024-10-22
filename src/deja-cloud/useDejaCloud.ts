@@ -34,6 +34,8 @@ export function useDejaCloud() {
   async function send({ action, payload }) {
     switch (action) {
       case 'effects':
+      case 'turnouts':
+      case 'macro':
         sendDejaCommand({ action, payload })
         break
       case 'throttle':

@@ -1,9 +1,16 @@
 import { computed } from 'vue'
-import { doc, collection, serverTimestamp, setDoc } from 'firebase/firestore'
+import {
+  doc,
+  collection,
+  serverTimestamp,
+  setDoc,
+  getDoc,
+} from 'firebase/firestore'
 import { useStorage } from '@vueuse/core'
 import { useCollection } from 'vuefire'
 import { db } from '@/firebase'
 import { useLayout } from '@/api/useLayout'
+import { useTurnouts } from '@/api/useTurnouts'
 import { useDcc } from '@/api/dccApi'
 import { useDejaJs } from '@/api/useDejaJs'
 import { useEfxIcon } from '@/api/useEfxIcon'
@@ -11,7 +18,8 @@ import { useEfxIcon } from '@/api/useEfxIcon'
 export const useEfx = () => {
   const layoutId = useStorage('@DEJA/cloud/layoutId', 'betatrack')
   const dccApi = useDcc()
-  const { getDevice } = useLayout()
+  const { getDevice, getDevices } = useLayout()
+  const { getTurnout } = useTurnouts()
   // const { sendDccCommand } = useDcc()
   const { send: sendDejaCommand } = useDejaJs()
   const { getIconComponent } = useEfxIcon()
@@ -23,6 +31,17 @@ export const useEfx = () => {
   function getEffects() {
     const layouts = useCollection(efxCol)
     return layouts
+  }
+
+  async function getEffect(id: string) {
+    const deviceRef = doc(db, `layouts/${layoutId.value}/effects`, id)
+    const docSnap = await getDoc(deviceRef)
+
+    if (docSnap.exists()) {
+      return { ...docSnap.data(), id: docSnap.id }
+    } else {
+      console.error('No such document!')
+    }
   }
 
   const efxTypes = [
@@ -96,7 +115,7 @@ export const useEfx = () => {
       //   .set(newEfx)
       const id = efxId
         ? efxId
-        : slugify(`${efx['interface']}-${efx.type}-${efx.name}`)
+        : slugify(`${efx['devcice'] || 'macro'}-${efx.type}-${efx.name}`)
       await setDoc(doc(db, `layouts/${layoutId.value}/effects`, id), {
         ...efx,
         timestamp: serverTimestamp(),
@@ -109,10 +128,14 @@ export const useEfx = () => {
   }
 
   async function runEffect(efx) {
-    console.log('dejaCloud SEND', efx, efx?.id)
+    console.log('dejaCloud runEffect', efx, efx?.id)
 
     try {
-      const device = await getDevice(efx['interface'])
+      if (efx?.type === 'macro') {
+        await runMacro(efx)
+        return
+      }
+      const device = await getDevice(efx['device'])
       console.log('device', device, device?.type)
 
       if (device?.type === 'dcc-ex') {
@@ -121,11 +144,96 @@ export const useEfx = () => {
         sendDejaCommand({ action: 'effects', payload: { ...efx, id: efx?.id } })
       }
 
-      // await addDoc(
-      //   collection(db, `layouts/${layoutId.value}/dccCommands`),
-      //   command
-      // )
-      console.log('Document written with ID: ', efx, device)
+      if (device?.type === 'dcc-ex') {
+        // dccApi.sendDccCommand({ action: 'output', payload: efx })
+        dccApi.sendOutput(efx.pin, efx.state)
+      } else if (device?.type === 'deja-arduino') {
+        sendDejaCommand({ action: 'effects', payload: { ...efx, id: efx?.id } })
+      }
+    } catch (e) {
+      console.error('Error adding document: ', e)
+    }
+  }
+
+  async function runMacro(efx) {
+    try {
+      console.log('dejaCloud runMacro', efx, efx?.id)
+      const devices = await getDevices()
+      const dccExDevice = devices.value.find(
+        (device) => device.type === 'dcc-ex'
+      ) // TODO: support multiple dcc-ex devices
+      console.log('dccExDevice', dccExDevice, devices.value)
+      const items = efx?.[efx.state ? 'on' : 'off']
+      const effectItems = items.filter((i) => i.type === 'effect')
+      const dejaEffectItems = effectItems.filter(
+        (i) => i.device !== dccExDevice.id
+      )
+      const dccEffectItems = effectItems.filter(
+        (i) => i.device === dccExDevice.id
+      )
+      const turnoutItems = items.filter((i) => i.type === 'turnout')
+      const dejaTurnoutItems = turnoutItems.filter(
+        (i) => i.device !== dccExDevice.id
+      )
+      const dccTurnoutItems = turnoutItems.filter(
+        (i) => i.device === dccExDevice.id
+      )
+      console.log(
+        'items',
+        items,
+        effectItems,
+        dejaEffectItems,
+        dccEffectItems,
+        turnoutItems,
+        dejaTurnoutItems,
+        dccTurnoutItems
+      )
+      dccEffectItems.forEach(async (macroItem) => {
+        const macroEfx = await getEffect(macroItem.id)
+        dccApi.sendOutput(efx.pin, efx.state)
+        dccApi.send('output', {
+          ...macroEfx,
+          state: efx.state ? macroItem.state : !macroItem.state,
+        })
+      })
+      dccTurnoutItems.forEach(async (macroItem) => {
+        const macroTurnout = await getTurnout(macroItem.id)
+        dccApi.send('turnout', {
+          turnoutId: macroTurnout.turnoutIdx,
+          state: efx.state ? macroItem.state : !macroItem.state,
+        })
+      })
+      const promisesDejaEffects = dejaEffectItems.map(async (macroItem) => {
+        const macroEfx = await getEffect(macroItem.id)
+        return {
+          ...macroEfx,
+          state: efx.state ? macroItem.state : !macroItem.state,
+        }
+      })
+      const dejaEffects = await Promise.all(promisesDejaEffects)
+      const promisesDejaTurnouts = dejaTurnoutItems.map(async (macroItem) => {
+        const macroTurnout = await getTurnout(macroItem.id)
+        return {
+          ...macroTurnout,
+          state: efx.state ? macroItem.state : !macroItem.state,
+        }
+      })
+      const dejaTurnouts = await Promise.all(promisesDejaTurnouts)
+      const dejaDevices = [
+        ...new Set([...dejaEffects, ...dejaTurnouts].map((i) => i.device)),
+      ]
+      const macro = {}
+      dejaDevices.map((device) => {
+        macro[device] = {
+          effects: dejaEffects.filter((i) => i.device === device),
+          turnouts: dejaTurnouts.filter((i) => i.device === device),
+        }
+      })
+      console.log('dejaEffects', macro, dejaDevices, dejaEffects, dejaTurnouts)
+      sendDejaCommand({
+        action: 'macro',
+        payload: { macro, id: efx?.id },
+      })
     } catch (e) {
       console.error('Error adding document: ', e)
     }
@@ -148,6 +256,7 @@ export const useEfx = () => {
     DEFAULT_TYPE,
     runEffect,
     getEffects,
+    getEffect,
   }
 }
 

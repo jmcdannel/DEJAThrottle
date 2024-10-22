@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
 import { VaAvatar } from 'vuestic-ui';
+  import router from '@/router'
 import { useLocos } from '@/api/useLocos'
+import { useThrottle } from '@/throttle/useThrottle'
 
 defineProps({
   allowAdd: {
@@ -12,11 +13,18 @@ defineProps({
 })
 
 const emit = defineEmits(['selected'])
-const { createLoco } = useDejaCloud()
-const { getLocos } = useLocos()
+const { getLocos, createLoco } = useLocos()
+const { acquireThrottle } = useThrottle()
 const address = ref(null)
 const name = ref(null)
 const locos = getLocos()
+
+async function handleThrottle(address: number) {
+  emit('selected', address) 
+  const throttle = await acquireThrottle(address)
+  console.log('openThrottle', throttle)
+  router.push({ name: 'cloud-throttle', params: { address } })
+}
 
 async function handleAdd() {
   const newAddress = parseInt(address.value as unknown as string) 
@@ -51,7 +59,7 @@ async function handleAdd() {
           hover:bg-opacity-60 
           hover:text-primary 
         "
-        @click="$emit('selected', loco.locoId)" 
+        @click="handleThrottle(loco.locoId)" 
         role="link">     
         
         <span><VaAvatar :size="24" class="mr-2">{{  loco.locoId }}</VaAvatar>
