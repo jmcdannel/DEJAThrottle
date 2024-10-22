@@ -9,13 +9,14 @@
   import ConnectionChip from '@/core/ConnectionChip.vue'
 
   const user = useCurrentUser()
+  const connStore = useConnectionStore()
   const { 
     layoutId,
     isDejaJS,
     isDejaServer,
     isSerial,
     isEmulated
-  } = storeToRefs(useConnectionStore())
+  } = storeToRefs(connStore)
 
   console.log(
     layoutId,
@@ -61,5 +62,6 @@
         </button>
       </section>
     </template>
+    <pre>{{ connStore }}</pre>
   </main>
 </template>
