@@ -44,11 +44,11 @@
   }
 
   const btnClasses = 'btn btn-accent relative h-auto mx-auto md:w-24 '
-  const iconClasses = `h-8 w-8 md:h-16 md:w-16 relative ${props.horizontal ? '-rotate-90' : ''}`
+  const iconClasses = `h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 lg:h-12 lg:w-12 relative ${props.horizontal ? '-rotate-90' : ''}`
 
 </script>
 <template>
-  <div class="p-2 flex justify-stretch items-center flex-grow"
+  <div class="py-2 px-8 sm:px-12 flex justify-stretch items-center flex-grow relatve z-20"
     :class="`${horizontal ? 'flex-row' : 'flex-col'}`">
     <button 
       class=" flex-grow" 
@@ -61,7 +61,7 @@
     </button>
     <hr class="border-black" />
     <button 
-      class="rounded-none  flex-grow" 
+      class="rounded-none flex-grow" 
       :class="btnClasses"
       @click="handleUp">
       <img 
@@ -70,10 +70,10 @@
       />
     </button>
     <button 
-      class="btn bg-red-500 rounded-3xl py-6 min-w-16 min-h-16 h-auto mx-auto relative z-10"
+      class="btn bg-red-500 rounded-3xl py-2 lg:py-4 min-w-16 h-auto mx-auto relative z-10"
       :class="horizontal ? 'h-22 md:h-36' : 'w-28 md:w-36'"
        @click="handleStop">
-      <img :src="stopIconSvg" class="h-8 w-8 md:h-16 md:w-16 relative" />
+      <img :src="stopIconSvg" class="h-8 w-8 lg:h-12 lg:w-12 relative" />
     </button>
     <button 
       class="rounded-none  flex-grow"

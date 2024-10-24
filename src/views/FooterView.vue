@@ -8,6 +8,7 @@ import { AiFillControl } from 'vue3-icons/ai'
 </script>
 <template>
   <footer class="relative">
+    <slot></slot>
     <div class="btm-nav mx-auto">
       <router-link
         :to="`/`"
@@ -18,7 +19,6 @@ import { AiFillControl } from 'vue3-icons/ai'
           <AiFillControl  class="w-6 h-6" />
         </button>
       </router-link>
-      <slot></slot>
       <router-link
         :to="`/effects`"
         custom

@@ -72,7 +72,7 @@ onMounted(() => {
         Sign in to continue.
       </h2>
       <article class="flex flex-col space-y-4 items-start m-12">
-        <VaButton
+        <v-btn
           preset="secondary"
           border-color="primary"
           class="w-64"
@@ -81,23 +81,23 @@ onMounted(() => {
         >
           <FaGithubAlt class="mr-2" />
           Sign in with GitHub
-        </VaButton>
-        <VaButton preset="secondary" border-color="primary" class="" block="true" disabled>
+        </v-btn>
+        <v-btn preset="secondary" border-color="primary" class="" block="true" disabled>
           <FaFacebook class="mr-2" />
           Sign in with Facebook
-        </VaButton>
-        <VaButton preset="secondary" border-color="primary" class="" block="true" disabled>
+        </v-btn>
+        <v-btn preset="secondary" border-color="primary" class="" block="true" disabled>
           <FaGoogle class="mr-2" />
           Sign in with Google
-        </VaButton>
-        <VaButton preset="secondary" border-color="primary" class="" block="true" disabled>
+        </v-btn>
+        <v-btn preset="secondary" border-color="primary" class="" block="true" disabled>
           <FaApple class="mr-2" />
           Sign in with Apple
-        </VaButton>
-        <VaButton preset="secondary" border-color="primary" class="" block="true" disabled>
+        </v-btn>
+        <v-btn preset="secondary" border-color="primary" class="" block="true" disabled>
           <FaMicrosoft class="mr-2" />
           Sign in with Microsoft
-        </VaButton>
+        </v-btn>
       </article>
     </template>
   </main>

@@ -62,10 +62,10 @@ async function handleAdd() {
         @click="handleThrottle(loco.locoId)" 
         role="link">     
         
-        <span><VaAvatar :size="24" class="mr-2">{{  loco.locoId }}</VaAvatar>
+        <span><v-avatar color="primary" :size="24" class="mr-2">{{  loco.locoId }}</v-avatar>
           {{ loco?.name || loco?.locoId }}
         </span>
-        <span><VaAvatar v-for="cloco in loco.consist" :key="cloco.address" :size="18" color="secondary" class="opacity-70">{{  cloco.address }}</VaAvatar></span>
+        <span><v-avatar v-for="cloco in loco.consist" :key="cloco.address" :size="18" color="secondary" class="opacity-70">{{  cloco.address }}</v-avatar></span>
       </button>
     </article>
     <aside v-if="allowAdd">

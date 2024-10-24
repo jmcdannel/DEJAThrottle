@@ -32,12 +32,12 @@
       @click="navigate" 
       style="--va-badge-text-wrapper-border-radius: 50%;"
       role="link">
-      <VaBadge
+      <v-badge
         overlap
         :text="throttle?.speed.toString()"
       >
-        <VaAvatar size="small">{{ throttle?.id }}</VaAvatar>
-      </VaBadge>
+        <v-avatar size="small">{{ throttle?.id }}</v-avatar>
+      </v-badge>
     </button>
   </router-link>
   </div>  

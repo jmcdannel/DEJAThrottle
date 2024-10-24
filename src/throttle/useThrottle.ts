@@ -53,7 +53,7 @@ export const useThrottle = () => {
       delay = SWITCH_DIR_DELAY
     }
 
-    console.log('updateSpeed', consist)
+    console.log('updateSpeed', newSpeed, consist)
 
     if (newSpeed === 0) {
       // stop
@@ -64,11 +64,13 @@ export const useThrottle = () => {
         dccApi.setSpeed(address, newSpeed)
         consist &&
           consist.forEach((cloco) => {
+            const clocoSpeed = calculateConsistSpeed(newSpeed, cloco)
             dccApi.sendDccCommand({
               action: 'throttle',
               payload: {
                 address: cloco.address,
-                speed: calculateConsistSpeed(newSpeed, cloco),
+                speed: clocoSpeed,
+                direction: clocoSpeed || 0 < 0 ? false : true,
               },
             })
           })

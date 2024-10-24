@@ -22,12 +22,12 @@ const throttles = getThrottles()
         @click="navigate" 
         style="--va-badge-text-wrapper-border-radius: 50%;"
         role="link">
-        <VaBadge
+        <v-badge
           overlap
           :text="throttle.speed.toString()"
         >
-          <VaAvatar size="small">{{ throttle?.id }}</VaAvatar>
-        </VaBadge>
+          <v-btn size="small">{{ throttle?.id }}</v-btn>
+        </v-badge>
       </button>
     </router-link>
   </template>

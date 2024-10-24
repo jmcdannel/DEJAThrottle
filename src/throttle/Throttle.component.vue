@@ -7,12 +7,13 @@
   import { 
     IoIosCog,
   } from 'vue3-icons/io'
-  import ThrottleButtonControls from './ThrottleButtonControls.component.vue'
-  import ThrottleSliderControls from './ThrottleSliderControls.component.vue'
-  import CurrentSpeed from './CurrentSpeed.component.vue'
-  import ThrottleHeader from './ThrottleHeader.component.vue'
-  import ThrottleLayout from './ThrottleLayout.vue'
+  import ThrottleButtonControls from '@/throttle/ThrottleButtonControls.component.vue'
+  import ThrottleSliderControls from '@/throttle/ThrottleSliderControls.component.vue'
+  import CurrentSpeed from '@/throttle/CurrentSpeed.component.vue'
+  import ThrottleHeader from '@/throttle/ThrottleHeader.component.vue'
+  import ThrottleActionMenu from '@/throttle/ThrottleActionMenu.vue'
   import Consist from '@/consist/Consist.component.vue'
+  import MiniConsist from '@/consist/MiniConsist.vue'
   import Functions from '@/functions/Functions.component.vue'
   import type { Loco, Throttle } from './types';
   import { useThrottle } from './useThrottle'
@@ -34,20 +35,33 @@
     }
   })
 
-  const emit = defineEmits(['release', 'change'])
+  const emit = defineEmits(['release'])
 
   const breakpoints = useBreakpoints(breakpointsTailwind)
   const { updateSpeed } = useThrottle()
+  function getSignedSpeed({speed, direction}) {
+    console.log('getSignedSpeed', speed, direction)
+    return speed && !!direction ? speed : -speed || 0
+  }
 
   const functionsCmp = ref(null)
-  const currentSpeed = ref(props.throttle?.speed || 0)
+  const currentSpeed = ref(getSignedSpeed(props.throttle)) // +/-
+  const throttleSpeed = ref(currentSpeed.value)
+  const throttleDir = ref(currentSpeed.value > -1)
 
   const setSpeed = debounce((val: number): void => { currentSpeed.value = val; }, `${DEBOUNCE_DELAY}ms`)
 
-  watch(currentSpeed, sendLocoSpeed)
-  watch(() => props.throttle?.speed, (newSpeed, oldSpeed) => {
-    currentSpeed.value = newSpeed
+  watch(currentSpeed, (newCurrentSpeed, oldCurrentSpeed) => {
+    // throttleSpeed.value = newCurrentSpeed
+    console.log('watch = currentspeed', props.throttle, throttleSpeed.value, { newCurrentSpeed, oldCurrentSpeed })
+    throttleSpeed.value = newCurrentSpeed
+    throttleDir.value = newCurrentSpeed > -1
+    sendLocoSpeed(newCurrentSpeed, oldCurrentSpeed)
   })
+  // watch(throttleSpeed, sendLocoSpeed)
+  // watch(() => props.throttle?.speed, (newSpeed, oldSpeed) => {
+  //   currentSpeed.value = newSpeed
+  // })
 
   console.log('Throttle.component', { props, currentSpeed })
 
@@ -60,7 +74,8 @@
   }
 
   function setSliderSpeed(val: number): void { // handle slider changes
-    setSpeed(parseInt(val.toString()))
+    console.log('setSliderSpeed', val)
+    setSpeed(parseInt(val.toString())) // debounced speed changes
   }
 
   async function clearLoco() {
@@ -83,53 +98,50 @@
   }
 
   const showSlider = (props.viewAs === 'Split' && breakpoints.greaterOrEqual('md')) || (breakpoints.greaterOrEqual('sm'))
+  const showFunctions = (props.viewAs === 'Split' && breakpoints.greaterOrEqual('md')) || props.viewAs
 
+  
 </script>
 <template>
-  <main class="card shadow-xl flex-grow overflow-auto relative bg-gradient-to-br from-violet-800 to-cyan-500 bg-gradient-border " v-if="throttle">
+  <main v-if="throttle" class="card w-full shadow-xl relative bg-gradient-to-br from-violet-800 to-cyan-500 bg-gradient-border">
     <!-- <pre>locoDocId:{{locoDocId}}</pre>-->
     <!-- <pre>loco:{{loco.functions}}</pre>  -->
+    <!-- <pre>throttleSpeed {{ throttleSpeed }}</pre>
+    <pre>throttleDir {{ throttleDir }}</pre>
+    <pre>currentSpeed {{ currentSpeed }}</pre>
+    <pre>props.throttle {{ props.throttle }}</pre> -->
     <ThrottleHeader :address="throttle.address">
+      <template v-slot:left>
+        <MiniConsist v-if="loco" :loco="loco" />
+      </template>
       <template v-slot:center>
-        <Consist v-if="loco" :loco="loco" />
+        <Consist v-if="loco" :loco="loco" />        
+        <CurrentSpeed :speed="currentSpeed" class="block sm:hidden" />
       </template>
       <template v-slot:right>
-        <aside class="grid grid-flow-col gap-1 items-center space-1 bg-purple-900 bg-opacity-50 p-2 rounded-lg">
-          <ThrottleLayout @change="(e) => emit('change', e)" />
-          <button class="btn btn-sm sm:btn-md btn-ghost border border-purple-600 border-opacity-50 rounded-none hover:bg-purple-800 hover:bg-opacity-65" @click="clearLoco">
-            <MdLocalParking alt="clear layout" class="w-4 h-4 md:w-6 md:h-6 stroke-none" />
-          </button>
-          <button class="btn btn-sm sm:btn-md btn-ghost border border-purple-600 border-opacity-50 rounded-none hover:bg-purple-800 hover:bg-opacity-65" @click="openFunctionSettings" >
-            <IoIosCog class="w-4 h-4 md:w-6 md:h-6 stroke-none" />
-          </button>
-          <button class="btn btn-sm sm:btn-md btn-ghost border border-purple-600 border-opacity-50 rounded-l hover:bg-purple-800 hover:bg-opacity-65" @click="openFunctions" >
-            <RiTrainWifiFill class="w-4 h-4 md:w-6 md:h-6 stroke-none" />
-          </button>
-        </aside>
+        <ThrottleActionMenu 
+          @clear="clearLoco" 
+          @settings="openFunctionSettings" 
+          @functions="openFunctions" 
+          class="hidden sm:inline-block" 
+        />
       </template>
     </ThrottleHeader>
-    <section class="throttle flex flex-row flex-grow overflow-auto">
-      <section v-if="showSlider" class="pt-4 pb-8 px-1 text-center flex-1">
+    <section class="throttle w-full h-full flex flex-row justify-around flex-grow pt-72 -mt-72">
+      <section v-if="showSlider" class="px-1 text-center flex-1">
         <ThrottleSliderControls :speed="currentSpeed" @update:currentSpeed="setSliderSpeed" @stop="handleStop" />  
       </section>
-      <section v-if="loco" class="flex pt-4 flex-col items-center justify-between flex-0 sm:flex-1">
+      <section v-if="loco && showFunctions" class="w-full flex flex-col flex-grow h-full overflow-hidden items-center justify-between flex-1/2 sm:flex-1">
+        <ThrottleActionMenu 
+          @clear="clearLoco" 
+          @settings="openFunctionSettings" 
+          @functions="openFunctions" 
+          class="block sm:hidden flex flex-col" 
+        />
         <Functions :loco="loco" ref="functionsCmp" />
       </section>
-  <!-- <div class="font-mono">
-    <div> Current showSlider: {{ showSlider }} </div>
-    <div> Current breakpoints: {{ current }} </div>
-    <div> Active breakpoint: {{ active }} </div>
-    <div> xs(&lt;{{ smWidth }}px): {{ xs }}</div>
-    <div> xs(&lt;={{ smWidth }}px): {{ xse }}</div>
-    <div> sm: {{ sm }}</div>
-    <div> md: {{ md }}</div>
-    <div> lg: {{ lg }}</div>
-    <div> xl: {{ xl }}</div>
-    <div>2xl: {{ xxl }}</div>
-    <div>greaterThanBreakPoint: {{ isGreaterThanBreakpoint }}</div>
-  </div> -->
-      <section class="pt-4 flex flex-col items-center justify-between flex-1">
-        <CurrentSpeed :speed="currentSpeed" />
+      <section class="flex flex-col items-center justify-between flex-1/2 sm:flex-1">
+        <CurrentSpeed :speed="currentSpeed" class="hidden sm:flex" />
         <ThrottleButtonControls :speed="currentSpeed" @update:currentSpeed="adjustSpeed" @stop="handleStop" />
       </section>
     </section>

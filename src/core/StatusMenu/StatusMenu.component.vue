@@ -107,7 +107,9 @@ import DejaUser from '@/deja-cloud/DejaUser.vue'
             <BsCpu v-else class="w-4 h-4 text-error" />
           </li>
           <li class="mx-1">
-            <VaAvatar :size="16" :src="user?.photoURL" v-if="user" class="w-4 h-4 text-success  stroke-none" />
+            <v-avatar :size="16" v-if="user" class="w-4 h-4 text-success">
+              <v-img  :src="user?.photoURL" />
+            </v-avatar>
             <BsCloud v-else class="w-4 h-4 text-gray-400" />
           </li>
         </ul>
@@ -187,11 +189,11 @@ import DejaUser from '@/deja-cloud/DejaUser.vue'
               custom
               v-slot="{ navigate }"
             >
-              <VaChip v-if="isDejaJS" @click="navigate" outline closable>{{  layoutId }}</VaChip>
-              <VaChip v-else-if="isDejaServer" @click="navigate" outline closable>{{  layoutId }}</VaChip>
-              <VaChip v-else-if="isSerial" @click="navigate" outline>USB Direct</VaChip>
-              <VaChip v-else-if="isEmulated" @click="navigate" outline>Emulated</VaChip>
-              <VaChip :color="disabledColor" v-else @click="navigate" outline>Disconnected</VaChip>
+              <v-chip v-if="isDejaJS" @click="navigate" outline closable>{{  layoutId }}</v-chip>
+              <v-chip v-else-if="isDejaServer" @click="navigate" outline closable>{{  layoutId }}</v-chip>
+              <v-chip v-else-if="isSerial" @click="navigate" outline>USB Direct</v-chip>
+              <v-chip v-else-if="isEmulated" @click="navigate" outline>Emulated</v-chip>
+              <v-chip :color="disabledColor" v-else @click="navigate" outline>Disconnected</v-chip>
             </router-link>
             <template v-if="layoutId" v-slot:actions>            
               <button class="btn btn-sm btn-outline mx-2" @click="handleStatus">

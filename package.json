@@ -18,6 +18,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "dayjs": "^1.11.13",
     "firebase": "^10.13.1",
     "mqtt-vue-hook": "^1.2.20",
@@ -28,7 +29,8 @@
     "vue-router": "^4.2.2",
     "vue3-icons": "^0.1.13",
     "vuefire": "^3.2.0",
-    "vuestic-ui": "^1.10.0"
+    "vuestic-ui": "^1.10.0",
+    "vuetify": "^3.7.3"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

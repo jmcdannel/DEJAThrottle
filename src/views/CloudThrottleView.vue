@@ -4,13 +4,13 @@
   import { useStorage } from '@vueuse/core'
   import router from '../router'
 
-  import ThrottleLayout from '@/throttle/ThrottleLayout.vue'
   import ThrottleComponent from '@/throttle/Throttle.component.vue'
   import ThrottleTile from '@/throttle/ThrottleTile.vue'
   import ThrottleAvatar from '@/throttle/ThrottleAvatar.vue'
 
   import { useLocos } from '@/api/useLocos'
   import { useDejaCloud } from '@/deja-cloud/useDejaCloud'
+  import { defaultFunctions } from '@/functions/useFunctions'
 
   const route = useRoute()
   const carouselElement = ref(null)
@@ -58,6 +58,7 @@
   }
 
   function scrollCarousel(targetImageNumber) {
+    console.log('scrollCarousel', targetImageNumber)
     if (!carouselElement.value) {
       return
     }
@@ -73,89 +74,89 @@
 
   const itemClasses = computed(() => {
     return {
-      'carousel-item': true,
-      'relative': true,
-      'w-full': viewAs.value === 'Array',
-      'w-1/2': viewAs.value === 'Split'
+      // 'carousel-item': true,
+      // 'relative': true,
+      // ' w-screen': viewAs.value === 'Array',
+      // 'w-1/2': viewAs.value === 'Split'
     }
   })
 
 </script>
 
 <template>
-  <div class="flex flex-col flex-grow overflow-scroll">
-    <ThrottleLayout @change="handleViewChange" class="bg-slate-700 relative z-40" />
-    <div class="flex flex-grow p-2">
-      <template v-if="locos?.length  && throttles?.length">
-        <template v-if="viewAs === 'Array' || viewAs === 'Split'">
+  <!-- <ThrottleMenu /> -->
+  <template v-if="locos?.length  && throttles?.length">
+    <template v-if="viewAs === 'Array' || viewAs === 'Split'">
+      <!-- <section class=" w-full h-full flex flex-row items-center justify-center overflow-auto"> -->
+        <div 
+          class="carousel w-full"
+          ref="carouselElement">
           <div 
-            class="carousel w-full"
-            ref="carouselElement">
-            <div 
-              :class="itemClasses"
-              v-for="(throttle, index) in throttles"   
-              :id="`slide${index.toString()}`"
-              :key="throttle.id">
-              <ThrottleComponent                  
-                :throttle="throttle" 
-                :loco="getLoco(throttle.address)"
-                :viewAs="viewAs"
-                @release="handleRelease"
-                @change="handleViewChange"
-              />
-              <div v-if="viewAs !== 'Split'" class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between z-10">
-                <button @click="scrollCarousel(index-1)" class="btn btn-circle" :class="index > 0 ? 'visible' : 'invisible'">{{ throttles?.[index-1]?.address }}</button>
-                <button @click="scrollCarousel(index+1)" class="btn btn-circle" :class="index < throttles.length-1 ? 'visible' : 'invisible'">{{ throttles?.[index+1]?.address }}</button>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-else-if="viewAs === 'List'">      
-          <div class="flex-grow flex flex-col relative overflow-auto">
-            <div class="flex-grow"></div>
-            <ThrottleTile 
-              v-for="throttle in throttles"
-              :key="throttle.id"
+            class="carousel-item relative w-screen"
+            :class="itemClasses"
+            v-for="(throttle, index) in throttles"   
+            :id="`slide${index.toString()}`"
+            :key="throttle.id">
+            <!-- <div class="bg-zinc-500 rounded-2xl w-full h-full flex flex-col">
+              <header class=" bg-zinc-800 text-zinc-100">{{ throttle.id }}</header>
+              <section class="throttle w-full flex flex-row flex-grow h-full pt-12 -mt-12">
+                <section class="functions bg-amber-950 basis-1/2 sm:basis-1/3 flex flex-col overflow-hidden h-full">
+                  <div class=" bg-lime-950 h-full overflow-y-auto">
+                    <button class="btn btn-lg">F0</button>
+                    <button class="btn btn-lg">F1</button>
+                    <button class="btn btn-md block" v-for="func in defaultFunctions" :key="func.id">{{ func.label}}</button>
+                  </div>
+                </section>
+                <section class="speed bg-orange-950 basis-1/2 sm:basis-1/3">                
+                  <section class=" bg-slate-500 rounded-2xl p-2 w-full">
+                    <button class="btn btn-lg">Up</button>
+                  </section>
+                  <section class=" bg-slate-500 rounded-2xl p-2 w-full">
+                    <button class="btn btn-lg">Stop</button>
+                  </section>
+                  <section class=" bg-slate-500 rounded-2xl p-2 w-full">
+                    <button class="btn btn-lg">Down</button>
+                  </section>
+                </section>
+              </section>
+
+            </div> -->
+            <ThrottleComponent
               :throttle="throttle" 
               :loco="getLoco(throttle.address)"
+              :viewAs="viewAs"
               @release="handleRelease"
-              @change="handleViewChange"
             />
+            <!-- <template v-if="viewAs !== 'Split'">
+              <button @click="scrollCarousel(index-1)" class="btn btn-circle absolute left-2 top-2/3 -translate-y-1/2 transform z-10" :class="index > 0 ? 'visible' : 'invisible'">{{ throttles?.[index-1]?.address }}</button>
+              <button @click="scrollCarousel(index+1)" class="btn btn-circle absolute right-2 top-2/3 -translate-y-1/2 transform z-10" :class="index < throttles.length-1 ? 'visible' : 'invisible'">{{ throttles?.[index+1]?.address }}</button>
+            </template> -->
           </div>
-        </template>
-        <template v-else-if="viewAs === 'Grid'">
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            <ThrottleTile 
-              v-for="throttle in throttles"
-              :key="throttle.id"
-              :throttle="throttle" 
-              :loco="getLoco(throttle.address)"
-              @release="handleRelease"
-              @change="handleViewChange"
-            />
-          </div>
-        </template>
-        <template v-else-if="viewAs === 'Sidebar'">
-          <ThrottleComponent                  
-            :throttle="currentThrottle" 
-            :loco="getLoco(address)"
-            :viewAs="viewAs"
-            @release="handleRelease"
-            @change="handleViewChange"
-            class="flex-basis-2/3 w-2/3"
-          />
-          <div class="flex-grow flex flex-col relative overflow-auto items-center p-2">
-            <ThrottleAvatar 
-              v-for="throttle in throttles.filter(t => t.address !== address)"
-              :key="throttle.id"
-              :throttle="throttle" 
-              :loco="getLoco(throttle.address)"
-              @select="address = throttle.address"
-            />
-          </div>
-        </template>
-      </template>
-    </div>
-    
-  </div>
+        </div>
+      <!-- </section> -->
+    </template>
+    <template v-else-if="viewAs === 'List'">      
+      <div class="flex-grow flex flex-col relative overflow-auto">
+        <div class="flex-grow"></div>
+        <ThrottleTile 
+          v-for="throttle in throttles"
+          :key="throttle.id"
+          :throttle="throttle" 
+          :loco="getLoco(throttle.address)"
+          @release="handleRelease"
+        />
+      </div>
+    </template>
+    <template v-else-if="viewAs === 'Grid'">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <ThrottleTile 
+          v-for="throttle in throttles"
+          :key="throttle.id"
+          :throttle="throttle" 
+          :loco="getLoco(throttle.address)"
+          @release="handleRelease"
+        />
+      </div>
+    </template>
+  </template>
 </template>

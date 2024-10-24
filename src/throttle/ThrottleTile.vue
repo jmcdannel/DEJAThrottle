@@ -1,21 +1,8 @@
 <script setup lang="ts">
-  import { ref, watch, computed, onMounted, type PropType } from 'vue'
-  import { storeToRefs } from 'pinia'
+  import { ref, watch, type PropType } from 'vue'
   import { debounce } from 'vue-debounce'
-  import { computedAsync } from '@vueuse/core'
-  import { MdLocalParking } from "vue3-icons/md"
-  import { RiTrainWifiFill } from 'vue3-icons/ri'  
-  import { 
-    IoIosCog,
-  } from 'vue3-icons/io'
-  import { getDocs, doc } from 'firebase/firestore'
   import ThrottleButtonControls from './ThrottleButtonControls.component.vue'
-  import ThrottleSliderControls from './ThrottleSliderControls.component.vue'
   import CurrentSpeed from './CurrentSpeed.component.vue'
-  import ThrottleHeader from './ThrottleHeader.component.vue'
-  import ThrottleLayout from './ThrottleLayout.vue'
-  import Consist from '@/consist/Consist.component.vue'
-  import Functions from '@/functions/Functions.component.vue'
   import type { Loco, LocoFunction, ConsistLoco, Throttle } from './types';
   import { useThrottle } from './useThrottle'
 
@@ -33,7 +20,7 @@
     }
   })
 
-  const emit = defineEmits(['release', 'change'])
+  const emit = defineEmits(['release'])
 
   const { updateSpeed } = useThrottle()
 
@@ -52,10 +39,6 @@
     currentSpeed.value = currentSpeed.value + val
   }
 
-  function setSliderSpeed(val: number): void { // handle slider changes
-    setSpeed(parseInt(val.toString()))
-  }
-
   async function clearLoco() {
     console.log('clearLoco', props.throttle)
     await handleStop()
@@ -64,7 +47,7 @@
 
   async function sendLocoSpeed(newSpeed:number, oldSpeed:number) {
     console.log('sendLocoSpeed', { newSpeed, oldSpeed }, props.throttle?.address, props.throttle)
-    updateSpeed(props.throttle?.address, newSpeed, oldSpeed)
+    updateSpeed(props.throttle?.address, props?.loco?.consist, newSpeed, oldSpeed)
   }
 
   function openFunctions() {

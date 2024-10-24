@@ -261,7 +261,7 @@ export function useDejaCloud() {
   }
 
   async function sendThrottleUpdate({ action, payload }) {
-    console.log('dejaCloud SEND', action, payload)
+    console.log('sendThrottleUpdate', action, payload)
     try {
       const throttle = {
         speed: Math.abs(payload.speed),

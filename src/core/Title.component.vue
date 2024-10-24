@@ -2,7 +2,8 @@
 
 </script>
 <template>
-  <router-link to="/" class="btn btn-ghost normal-case text-xl">    
+  <img src="/images/android-chrome-192x192.png" alt="Deja Throttle Logo" class="w-10 h-10" />
+  <router-link to="/" class="hidden sm:flex btn btn-ghost normal-case text-xl">    
     <span class="bg-clip-text bg-gradient-to-r from-sky-500 to-sky-800 font-extrabold">
       DEJA
     </span> 

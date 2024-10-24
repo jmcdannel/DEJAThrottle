@@ -1,0 +1,36 @@
+<script lang="ts" setup>
+import { useLocos } from '@/api/useLocos'
+import ThrottleMenu from '@/throttle/ThrottleMenu.vue'
+
+const { getThrottles } = useLocos()
+const throttles = getThrottles()
+
+</script>
+
+<template>
+  <template v-if="throttles">
+    <div class="py-4 p-2 flex justify-between">
+      <nav class="grid grid-flow-col gap-4">
+        <button 
+          v-for="throttle in throttles"
+          :key="throttle.id"
+          class="text-primary" 
+          :class="{ active: ($route?.name === 'home' || $route?.name === 'throttle') }"
+          @click="$router.push({ name: 'cloud-throttle', params: { address: throttle.id } })"
+          >
+          <v-badge
+            :color="throttle.speed > 0 ? 'success' : 'error'"
+            :content="throttle.speed.toString()"
+          >
+            <v-avatar size="default" color="primary">{{ throttle?.id }}</v-avatar>
+          </v-badge>
+        </button>
+      </nav>
+
+      <!-- <v-spacer></v-spacer> -->
+      <aside class="relative w-10 h-10 ">
+        <ThrottleMenu />
+      </aside>
+    </div>
+  </template>
+</template>

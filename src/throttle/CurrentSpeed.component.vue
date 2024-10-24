@@ -10,15 +10,16 @@ const props = defineProps({
   <div class="flex justify-center">
     <span class="
       current-speed 
-      min-w-16
-      md:min-w-32
+      min-w-24
+      lg:min-w-24
       shadow-lg 
       shadow-blue-500/50 
       text-center 
       text-xl
-      md:text-5xl 
+      md:text-2xl
+      lg:text-5xl 
       p-2
-      md:p-4 
+      lg:p-4 
       rounded-xl 
       shadow-inner 
       bg-gradient-to-r 

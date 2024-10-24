@@ -18,5 +18,5 @@ function handleSignOut() {
 </script>
 
 <template>
-  <VaButton @click="handleSignOut" preset="primary"  :disabled="!user">Sign out</VaButton>
+  <v-btn @click="handleSignOut" preset="primary"  :disabled="!user">Sign out</v-btn>
 </template>

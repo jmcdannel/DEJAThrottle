@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { refDebounced, watchDebounced } from '@vueuse/core'
 
   const emit = defineEmits(['update', 'stop'])
@@ -36,29 +36,56 @@ import { refDebounced, watchDebounced } from '@vueuse/core'
     // emit('update', sliderVal.value)
   }, { debounce: 500, maxWait: 1000 })
 
+  watch(sliderVal, () => {
+    console.log('watch sliderVal', sliderVal.value)
+    emit('update', sliderVal.value)
+  })
+
+  function handleSlider(val) {
+    console.log('handleSlider', val)
+    sliderVal.value = val
+  }
 
 </script>
 <template>
-  <VaSlider
+  <!-- <VaSlider
     v-model="sliderVal"
     class=""
     :label="direction ? 'FWD' : 'REV'"
-    :label-color="direction ? 'green-500' : 'red-500'"
     vertical
     track-label-visible
-    pins
+    show-ticks
     @change="emit('update', sliderVal)"
     :step="1"
   >
-  <template #trackLabel="{ value }">
-      <VaChip
+    <template #trackLabel="{ value }">
+      <v-chip
         :color="direction ? 'green-500' : 'red-500'"
         size="small"
       >
         {{ value }}
-      </VaChip>
+      </v-chip>
     </template>
-  </VaSlider>
+  </VaSlider> -->
+  <v-slider
+    :model-value="sliderVal"
+    class=" content-end"
+    direction="vertical"
+    :label="direction ? 'FWD' : 'REV'"
+    @update:model-value="handleSlider"
+    step="1"
+    density="comfortable"
+    thumb-label="always"
+    show-ticks
+    color="purple"
+    track-color="purple"
+    track-fill-color="blue"
+    thumb-color="purple"
+    min-width="5rem"
+    thumb-size="20"
+    track-size="50"
+  >
+  </v-slider>
 </template>
 <style >
 :root {

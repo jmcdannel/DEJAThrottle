@@ -140,7 +140,7 @@ import { templateRef } from '@vueuse/core'
           item-label="DEJA Server" 
           @connect="handleDejaServer()"
           @disconnect="handleDisconnect()">    
-          <VaChip v-if="(isDejaServer)" @click="$router.push({ name: 'deja-cloud' })" outline :color="isDejaServer ? 'success' : 'gray-500'">{{ layoutId }}</VaChip>          
+          <v-chip v-if="(isDejaServer)" @click="$router.push({ name: 'deja-cloud' })" outline :color="isDejaServer ? 'success' : 'gray-500'">{{ layoutId }}</v-chip>          
         </StatusMenuItem>
         <StatusMenuItem 
           :icon="BiServer" 

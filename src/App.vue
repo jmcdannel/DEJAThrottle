@@ -9,7 +9,7 @@
   import { db,firebaseApp } from '@/firebase'
   import HeaderView from '@/views/HeaderView.vue'
   import FooterView from '@/views/FooterView.vue'
-  import DejaThrottleBottomNav from '@/deja-cloud/DejaThrottleBottomNav.vue'
+  import ThrottleNav from '@/throttle/ThrottleNav.vue'
   import DejaJsConnect from '@/core/DejaJsConnect.component.vue'
   import DejaCloudConnect from '@/deja-cloud/DejaCloudConnect.vue'
   import { useDejaCloudStore } from '@/deja-cloud/dejaCloudStore'
@@ -61,10 +61,11 @@
   </template>
   <main class="flex flex-col h-screen mx-auto">
     <HeaderView />
-    <main class="flex-grow flex mb-16 min-h-0">
+    <main class="flex-grow flex flex-col mb-16 min-h-0">
       <RouterView />
+      <ThrottleNav v-if="!!user && !!layoutId" />
     </main>
-    <FooterView><DejaThrottleBottomNav v-if="!!user && !!layoutId" /></FooterView>
+    <FooterView></FooterView>
   </main>
 </template>
 <style>

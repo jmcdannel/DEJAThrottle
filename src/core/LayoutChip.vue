@@ -16,15 +16,14 @@ function handleLayoutClick() {
 
 </script>
 <template>
-  <VaChip v-if="layoutId" 
+  <v-chip v-if="layoutId" 
     :color="dccExConnected ? 'success' : 'warning'" 
     class="cursor-pointer"
     :class="dccExConnected ? '' : 'animate-pulse'"
-    outline 
     closable 
     @click="handleLayoutClick">
     <BsCpu class="mr-2" />
     {{  layoutId }}
     <FiRefreshCcw class="ml-2" />
-  </VaChip>
+  </v-chip>
 </template>

@@ -73,14 +73,14 @@
       
         <div class="flex flex-col">
           <div class="flex py-1 min-w-48 justify-between bg-purple-500 border-purple-500 border my-1 items-center px-2 rounded-full bg-opacity-20"> 
-            <VaAvatar class="bg-red-500" size="small">A</VaAvatar>
+            <v-avatar class="bg-red-500" size="small">A</v-avatar>
             <h3>{{ layout.dccEx.trackA }}</h3>
-            <VaAvatar class="bg-transparent text-red-500" size="small"><FaPowerOff /></VaAvatar>
+            <v-avatar class="bg-transparent text-red-500" size="small"><FaPowerOff /></v-avatar>
           </div>
           <div class="flex py-1 min-w-48 justify-between bg-purple-500 border-purple-500 border my-1 items-center px-2 rounded-full bg-opacity-20"> 
-            <VaAvatar class="bg-red-500" size="small">A</VaAvatar>
+            <v-avatar class="bg-red-500" size="small">A</v-avatar>
             <h3>{{ layout.dccEx.trackB }}</h3>
-            <VaAvatar class="bg-transparent text-red-500" size="small"><FaPowerOff /></VaAvatar>
+            <v-avatar class="bg-transparent text-red-500" size="small"><FaPowerOff /></v-avatar>
           </div>
           <div>
             <p class="py-2 text-xs text-cyan-200">Updated: {{ dayjs.unix(layout.dccEx.timestamp.seconds).fromNow() }}</p>

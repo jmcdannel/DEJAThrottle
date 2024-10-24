@@ -108,85 +108,28 @@
   }
 
 </script>
-<template>  
-    <ol 
-      class="hidden sm:flex bg-gradient-to-r from-pink-500 to-indigo-80
-      flex-row
-      mr-2
-      mt-2
-      px-1      
-      rounded-3xl">
-      <template v-if="loco?.consist?.length > 0">
-        <li class="bg-gradient-to-r from-indigo-800 to-indigo-500
-          flex 
+<template>
+  <ol class="sm:hidden relative flex -left-2
           justify-center 
           align-middle 
           items-center
-          space-between
-          rounded-full
-          p-1
-          mr-1
-          my-1
-          ">
-          <button class="btn btn-circle btn-outline btn-xs border-pink-500">
+          cursor-pointer
+          space-between"
+          @click="openSettings">
+      <template v-for="(cloco, index) in loco?.consist" :key="cloco">
+        <li 
+          :class="`${leftOffsetClasses[index * 2] || '-left-22'} ${opacityClasses[80-(index+1) * 10] || 'opacity-20'}`"
+          class="my-1 relative">
+          <!-- <button class="btn btn-circle btn-outline btn-xs border-pink-500">
             <FaChevronCircleLeft class="h-5 w-5 fill-pink-500" alt="Left loco" />
-          </button>
+          </button> -->
           <div class="ml-1 avatar placeholder">
-            <div class=" rounded-full w-6 bg-sky-500 text-white">
-              <span class="text-sm">{{ loco?.locoId }}</span>
+            <div class=" rounded-full w-8 bg-sky-500 text-white">
+              <span class="text-sm">{{ cloco?.address }}</span>
             </div> 
           </div>
         </li>
-        <template v-for="cloco in loco?.consist" :key="cloco">
-          <ConsistLocoItem 
-            :cloco="cloco" 
-            @toggle-dir="toggleLocoDir"  />
-        </template>
-        <li class="bg-purple-600
-          flex 
-          justify-center 
-          align-middle 
-          space-between
-          rounded-full
-          p-1
-          mr-1
-          my-1
-          ">
-          <button class="btn btn-circle text-purple-200 btn-xs" @click="openSettings">
-            <IoIosCog class="h-5 w-5" />
-          </button>
-        </li>
       </template>
-      <template v-else>
-        <li
-          class="
-            flex
-            items-center
-            p-1
-            mr-1
-            my-1
-            text-xs
-            uppercase
-            text-purple-200
-          "
-        >
-          Consist
-        </li>
-      </template>
-      <li class="bg-green-500
-        flex 
-        justify-center 
-        align-middle 
-        space-between
-        rounded-full
-        p-1
-        mr-1
-        my-1
-        ">
-        <button class="btn btn-circle text-black btn-outline btn-xs" @click="openAddLoco">
-          <FaPlus alt="add loco to consist" class="h-3 w-3" />
-        </button>
-      </li>
     </ol>
 
   <ConsistSettings 
